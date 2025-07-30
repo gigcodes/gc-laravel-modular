@@ -173,3 +173,23 @@ test('store passkey redirects unauthenticated user', function () {
 
     $response->assertRedirect(route('login'));
 });
+
+test('registration options returns json error for unauthenticated json request', function () {
+    $response = $this->postJson(route('passkeys.registration.options'));
+
+    $response->assertStatus(401);
+    $response->assertJson(['message' => 'Unauthenticated.']);
+});
+
+test('store passkey returns json error for unauthenticated json request', function () {
+    $response = $this->postJson(route('passkeys.store'), [
+        'name' => 'Test Key',
+        'credential' => [
+            'id' => 'test-id',
+            'publicKey' => base64_encode('test-key'),
+        ],
+    ]);
+
+    $response->assertStatus(401);
+    $response->assertJson(['message' => 'Unauthenticated.']);
+});

@@ -199,3 +199,63 @@ test('can get filtered results with specific columns', function () {
     expect($results)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
     expect($results)->toHaveCount(2);
 });
+
+test('can get current user through service', function () {
+    $user = User::factory()->create();
+    
+    $this->actingAs($user);
+    
+    $currentUser = $this->service->user();
+    
+    expect($currentUser)->toBeInstanceOf(User::class);
+    expect($currentUser->id)->toBe($user->id);
+});
+
+test('can create record with Data object', function () {
+    $data = new class('Test User', 'test@example.com', bcrypt('password')) extends \Spatie\LaravelData\Data {
+        public function __construct(
+            public string $name,
+            public string $email,
+            public string $password,
+        ) {}
+        
+        public function toArray(): array {
+            return [
+                'name' => $this->name,
+                'email' => $this->email,
+                'password' => $this->password,
+            ];
+        }
+    };
+
+    $user = $this->service->create($data);
+
+    expect($user)->toBeInstanceOf(User::class);
+    expect($user->name)->toBe('Test User');
+    expect($user->email)->toBe('test@example.com');
+});
+
+test('can update record with Data object', function () {
+    $user = User::factory()->create();
+    
+    $data = new class('Updated Name') extends \Spatie\LaravelData\Data {
+        public function __construct(
+            public string $name,
+        ) {}
+        
+        public function toArray(): array {
+            return [
+                'name' => $this->name,
+            ];
+        }
+    };
+
+    $result = $this->service->update($user->id, $data);
+
+    expect($result)->toBeTrue();
+    
+    $this->assertDatabaseHas('users', [
+        'id' => $user->id,
+        'name' => 'Updated Name',
+    ]);
+});

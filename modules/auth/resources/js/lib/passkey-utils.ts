@@ -129,7 +129,20 @@ export function canUsePasskeys(): boolean {
 /**
  * Format passkey creation options for the browser
  */
-export function formatRegistrationOptions(options: any): PublicKeyCredentialCreationOptionsJSON {
+interface RegistrationOptionsInput {
+    challenge: string;
+    user: {
+        id: string;
+        [key: string]: unknown;
+    };
+    excludeCredentials?: Array<{
+        id: string;
+        [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+}
+
+export function formatRegistrationOptions(options: RegistrationOptionsInput): PublicKeyCredentialCreationOptionsJSON {
     return {
         ...options,
         challenge: options.challenge,
@@ -138,7 +151,7 @@ export function formatRegistrationOptions(options: any): PublicKeyCredentialCrea
             id: options.user.id,
         },
         excludeCredentials:
-            options.excludeCredentials?.map((cred: any) => ({
+            options.excludeCredentials?.map((cred) => ({
                 ...cred,
                 id: cred.id,
             })) || [],
@@ -148,12 +161,21 @@ export function formatRegistrationOptions(options: any): PublicKeyCredentialCrea
 /**
  * Format passkey authentication options for the browser
  */
-export function formatAuthenticationOptions(options: any): PublicKeyCredentialRequestOptionsJSON {
+interface AuthenticationOptionsInput {
+    challenge: string;
+    allowCredentials?: Array<{
+        id: string;
+        [key: string]: unknown;
+    }>;
+    [key: string]: unknown;
+}
+
+export function formatAuthenticationOptions(options: AuthenticationOptionsInput): PublicKeyCredentialRequestOptionsJSON {
     return {
         ...options,
         challenge: options.challenge,
         allowCredentials:
-            options.allowCredentials?.map((cred: any) => ({
+            options.allowCredentials?.map((cred) => ({
                 ...cred,
                 id: cred.id,
             })) || [],

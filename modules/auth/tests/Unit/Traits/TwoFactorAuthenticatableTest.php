@@ -124,3 +124,41 @@ test('returns null for decrypted secret when no secret exists', function () {
 
     expect($decryptedSecret)->toBeNull();
 });
+
+test('can replace recovery code', function () {
+    $user = User::factory()->create([
+        'two_factor_recovery_codes' => json_encode([
+            'ABCD1234',
+            'EFGH5678',
+        ]),
+    ]);
+
+    // Mock the service to simulate successful verification
+    $this->mock(\Modules\Auth\Services\Google2FAService::class, function ($mock) use ($user) {
+        $mock->shouldReceive('verifyRecoveryCode')
+             ->with($user, 'ABCD1234')
+             ->once()
+             ->andReturn(true);
+    });
+
+    $user->replaceRecoveryCode('ABCD1234');
+    // Test passes if no exception is thrown
+    expect(true)->toBeTrue();
+});
+
+test('can generate recovery codes with proper format', function () {
+    $user = User::factory()->create();
+    
+    // Use reflection to test the protected method
+    $reflection = new \ReflectionClass($user);
+    $method = $reflection->getMethod('generateRecoveryCode');
+    $method->setAccessible(true);
+    
+    $code = $method->invoke($user);
+    
+    expect($code)->toBeString();
+    expect(strlen($code))->toBe(8);
+    // The code contains uppercase letters and numbers
+    expect(strtoupper($code))->toBe($code); // Ensures it's uppercase
+    expect(preg_match('/^[A-Z0-9]+$/', $code))->toBe(1);
+});

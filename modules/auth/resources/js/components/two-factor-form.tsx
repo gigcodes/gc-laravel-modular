@@ -8,14 +8,14 @@ import HeadingSmall from '@shared/components/heading-small';
 import { Label } from '@shared/components/ui/label';
 import { Alert, AlertDescription } from '@shared/components/ui/alert';
 import { Separator } from '@shared/components/ui/separator';
-import type { User } from '@/types';
+import type { User } from '@shared/types';
 
 export function TwoFactorForm() {
-    const { auth, confirmsTwoFactorAuthentication } = usePage().props as { 
+    const { auth, confirmsTwoFactorAuthentication } = usePage().props as unknown as {
         auth: { user: User & { two_factor_enabled?: boolean; two_factor_confirmed_at?: string | null } };
         confirmsTwoFactorAuthentication?: boolean;
     };
-    
+
     const [enabling, setEnabling] = useState(false);
     const [confirming, setConfirming] = useState(confirmsTwoFactorAuthentication || false);
     const [disabling, setDisabling] = useState(false);
@@ -30,13 +30,13 @@ export function TwoFactorForm() {
         () => !enabling && auth.user?.two_factor_enabled,
         [enabling, auth.user]
     );
-    
+
     // If we're in confirming state initially (from server), load QR code
     useEffect(() => {
         if (confirmsTwoFactorAuthentication && !qrCode) {
             Promise.all([showQrCode(), showSetupKey()]);
         }
-    }, [confirmsTwoFactorAuthentication]);
+    }, [confirmsTwoFactorAuthentication, qrCode]);
 
     const showQrCode = async () => {
         try {
@@ -74,14 +74,18 @@ export function TwoFactorForm() {
     const enableTwoFactorAuthentication = async () => {
         setEnabling(true);
         setError(null);
-        
+
         try {
             await axios.post(route('two-factor.enable'));
             await Promise.all([showQrCode(), showSetupKey()]);
             setConfirming(true);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Two-factor enable error:', error);
-            const message = error.response?.data?.message || error.response?.data?.errors?.two_factor || 'Failed to enable two-factor authentication';
+            let message = 'Failed to enable two-factor authentication';
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { data?: { message?: string; errors?: { two_factor?: string } } } };
+                message = axiosError.response?.data?.message || axiosError.response?.data?.errors?.two_factor || message;
+            }
             setError(message);
         } finally {
             setEnabling(false);
@@ -91,7 +95,7 @@ export function TwoFactorForm() {
     const confirmTwoFactorAuthentication = (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        
+
         router.post(route('two-factor.confirm'), {
             code: confirmationCode
         }, {
@@ -123,7 +127,7 @@ export function TwoFactorForm() {
 
     const disableTwoFactorAuthentication = () => {
         setDisabling(true);
-        
+
         router.delete(route('two-factor.disable'), {
             preserveScroll: true,
             onSuccess: () => {
@@ -137,9 +141,9 @@ export function TwoFactorForm() {
 
     return (
         <div className="space-y-6">
-            <HeadingSmall 
-                title="Two-Factor Authentication" 
-                description="Add an extra layer of security to your account by enabling two-factor authentication" 
+            <HeadingSmall
+                title="Two-Factor Authentication"
+                description="Add an extra layer of security to your account by enabling two-factor authentication"
             />
             <div className="space-y-4">
                 <div className="text-sm text-muted-foreground">
@@ -164,18 +168,18 @@ export function TwoFactorForm() {
                             <div className="space-y-4">
                                 <div>
                                     <p className="text-sm font-medium mb-2">
-                                        {confirming 
+                                        {confirming
                                             ? 'To finish enabling two-factor authentication, scan the QR code with your authenticator app or enter the setup key manually.'
                                             : 'Scan this QR code with your authenticator app.'}
                                     </p>
                                 </div>
-                                
+
                                 <div className="flex flex-col items-start space-y-4">
-                                    <div 
+                                    <div
                                         className="bg-white dark:bg-gray-100 p-2 rounded-lg border w-fit [&>svg]:w-[150px] [&>svg]:h-[150px]"
                                         dangerouslySetInnerHTML={{ __html: qrCode }}
                                     />
-                                    
+
                                     {setupKey && (
                                         <div className="space-y-2">
                                             <Label className="text-sm">Setup Key</Label>
@@ -212,7 +216,7 @@ export function TwoFactorForm() {
                         {twoFactorEnabled && (
                             <div className="space-y-4">
                                 <Separator />
-                                
+
                                 <div className="space-y-2">
                                     <Button
                                         variant="outline"
@@ -240,7 +244,7 @@ export function TwoFactorForm() {
                                                     Store these recovery codes in a secure location. They can be used to access your account if you lose your two-factor authentication device.
                                                 </AlertDescription>
                                             </Alert>
-                                            
+
                                             <div className="grid grid-cols-2 gap-2 p-4 bg-muted/50 rounded-lg">
                                                 {recoveryCodes.map((code, index) => (
                                                     <code key={index} className="text-sm">
@@ -248,7 +252,7 @@ export function TwoFactorForm() {
                                                     </code>
                                                 ))}
                                             </div>
-                                            
+
                                             <Button
                                                 variant="outline"
                                                 size="sm"

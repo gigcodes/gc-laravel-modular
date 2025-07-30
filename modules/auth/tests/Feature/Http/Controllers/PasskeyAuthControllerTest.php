@@ -144,3 +144,23 @@ test('passkey authentication returns redirect for non-json requests', function (
     $response->assertRedirect(route('dashboard'));
     $this->assertAuthenticated();
 });
+
+test('passkey authentication handles service exceptions', function () {
+    $this->mock(\Modules\Auth\Services\PasskeyService::class, function ($mock) {
+        $mock->shouldReceive('verifyAuthentication')
+             ->andThrow(new \Exception('Service error'));
+    });
+
+    $response = $this->postJson(route('passkey.auth.verify'), [
+        'credential' => [
+            'id' => 'test-id',
+            'response' => 'test-response',
+        ],
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJson([
+        'success' => false,
+        'message' => 'Authentication failed: Service error',
+    ]);
+});
