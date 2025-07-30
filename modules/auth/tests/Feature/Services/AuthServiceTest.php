@@ -1,25 +1,25 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Services\AuthService;
-use Modules\Auth\Services\Google2FAService;
-use Modules\Auth\Repositories\UserRepository;
-use Modules\Auth\Models\User;
-use Modules\Auth\DTO\LoginData;
-use Modules\Auth\DTO\RegisterDTO;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Modules\Auth\DTO\LoginData;
+use Modules\Auth\DTO\RegisterDTO;
+use Modules\Auth\Models\User;
+use Modules\Auth\Repositories\UserRepository;
+use Modules\Auth\Services\AuthService;
+use Modules\Auth\Services\Google2FAService;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->userRepository = app(UserRepository::class);
+    $this->userRepository   = app(UserRepository::class);
     $this->google2FAService = app(Google2FAService::class);
-    $this->authService = app(AuthService::class);
+    $this->authService      = app(AuthService::class);
 });
 
 test('can login with valid credentials', function () {
@@ -60,7 +60,7 @@ test('cannot login with invalid credentials', function () {
 
 test('can register new user', function () {
     Event::fake([Registered::class]);
-    
+
     $registerData = new RegisterDTO(
         name: 'Test User',
         email: 'test@example.com',
@@ -73,7 +73,7 @@ test('can register new user', function () {
     expect($user->name)->toBe('Test User');
     expect($user->email)->toBe('test@example.com');
     expect(Hash::check('password', $user->password))->toBeTrue();
-    
+
     Event::assertDispatched(Registered::class, function ($event) use ($user) {
         return $event->user->id === $user->id;
     });
@@ -82,12 +82,12 @@ test('can register new user', function () {
 test('logout clears authentication and session data', function () {
     $user = User::factory()->create();
     Auth::login($user);
-    
+
     session([
         'auth.two_factor_verified' => $user->id,
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => true,
+        'auth.two_factor_user_id'  => $user->id,
+        'auth.remember'            => true,
     ]);
 
     $this->authService->logout();
@@ -101,7 +101,7 @@ test('logout clears authentication and session data', function () {
 
 test('can verify email for unverified user', function () {
     Event::fake([Verified::class]);
-    
+
     $user = User::factory()->create([
         'email_verified_at' => null,
     ]);
@@ -110,7 +110,7 @@ test('can verify email for unverified user', function () {
 
     $user->refresh();
     expect($user->hasVerifiedEmail())->toBeTrue();
-    
+
     Event::assertDispatched(Verified::class, function ($event) use ($user) {
         return $event->user->id === $user->id;
     });
@@ -118,7 +118,7 @@ test('can verify email for unverified user', function () {
 
 test('verify email does nothing for already verified user', function () {
     Event::fake([Verified::class]);
-    
+
     $user = User::factory()->create([
         'email_verified_at' => now(),
     ]);
@@ -153,13 +153,14 @@ test('can send password reset link', function () {
 });
 
 test('can reset password with valid token', function () {
-    $user = User::factory()->create();
+    $user        = User::factory()->create();
     $newPassword = 'new-password';
 
     Password::shouldReceive('reset')
         ->once()
-        ->andReturnUsing(function ($credentials, $callback) use ($user, $newPassword) {
+        ->andReturnUsing(function ($credentials, $callback) use ($user) {
             $callback($user);
+
             return Password::PASSWORD_RESET;
         });
 
@@ -190,59 +191,58 @@ test('is two factor required returns correct value', function () {
 
 test('complete two factor login returns null when no session data', function () {
     $result = $this->authService->completeTwoFactorLogin('123456');
-    
+
     expect($result)->toBeNull();
 });
 
 test('complete two factor login returns null for invalid user', function () {
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => 999999,
+        'auth.two_factor_user_id'  => 999999,
     ]);
 
     $result = $this->authService->completeTwoFactorLogin('123456');
-    
+
     expect($result)->toBeNull();
 });
 
-
 test('complete two factor login returns null for invalid code', function () {
     $google2fa = app(\PragmaRX\Google2FA\Google2FA::class);
-    $secret = $google2fa->generateSecretKey();
-    
+    $secret    = $google2fa->generateSecretKey();
+
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($secret),
+        'two_factor_secret'       => encrypt($secret),
         'two_factor_confirmed_at' => now(),
     ]);
-    
+
     session(['auth.two_factor_user_id' => $user->id]);
-    
+
     // Use an obviously invalid code
     $result = $this->authService->completeTwoFactorLogin('000000');
-    
+
     expect($result)->toBeNull();
 });
 
 test('complete two factor login with valid code logs in user', function () {
     $google2fa = app(\PragmaRX\Google2FA\Google2FA::class);
-    $secret = $google2fa->generateSecretKey();
-    
+    $secret    = $google2fa->generateSecretKey();
+
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($secret),
+        'two_factor_secret'       => encrypt($secret),
         'two_factor_confirmed_at' => now(),
     ]);
-    
+
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => false,
+        'auth.two_factor_user_id'  => $user->id,
+        'auth.remember'            => false,
     ]);
-    
+
     // Generate a valid OTP using the same secret
     $validCode = $google2fa->getCurrentOtp($secret);
-    
+
     $result = $this->authService->completeTwoFactorLogin($validCode);
-    
+
     expect($result)->toBeInstanceOf(User::class);
     expect($result->id)->toBe($user->id);
     expect(Auth::check())->toBeTrue();

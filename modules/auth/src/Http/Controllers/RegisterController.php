@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Auth\Http\Controllers;
 
-use Faker\Provider\Base;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;

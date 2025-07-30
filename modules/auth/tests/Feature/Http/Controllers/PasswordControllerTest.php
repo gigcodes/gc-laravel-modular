@@ -21,8 +21,8 @@ test('password can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->put(route('password.update'), [
-        'current_password' => 'password',
-        'password' => 'new-password',
+        'current_password'      => 'password',
+        'password'              => 'new-password',
         'password_confirmation' => 'new-password',
     ]);
 
@@ -34,8 +34,8 @@ test('correct current password must be provided to update password', function ()
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->put(route('password.update'), [
-        'current_password' => 'wrong-password',
-        'password' => 'new-password',
+        'current_password'      => 'wrong-password',
+        'password'              => 'new-password',
         'password_confirmation' => 'new-password',
     ]);
 
@@ -46,8 +46,8 @@ test('password must be confirmed', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->put(route('password.update'), [
-        'current_password' => 'password',
-        'password' => 'new-password',
+        'current_password'      => 'password',
+        'password'              => 'new-password',
         'password_confirmation' => 'different-password',
     ]);
 
@@ -58,8 +58,8 @@ test('password must meet minimum requirements', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->put(route('password.update'), [
-        'current_password' => 'password',
-        'password' => 'short',
+        'current_password'      => 'password',
+        'password'              => 'short',
         'password_confirmation' => 'short',
     ]);
 

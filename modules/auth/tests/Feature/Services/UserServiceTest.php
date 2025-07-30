@@ -1,21 +1,21 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Services\UserService;
-use Modules\Auth\Repositories\UserRepository;
 use Modules\Auth\Models\User;
+use Modules\Auth\Repositories\UserRepository;
+use Modules\Auth\Services\UserService;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->userRepository = app(UserRepository::class);
-    $this->userService = app(UserService::class);
+    $this->userService    = app(UserService::class);
 });
 
 test('can create a user through service', function () {
     $userData = [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
+        'name'     => 'Test User',
+        'email'    => 'test@example.com',
         'password' => bcrypt('password'),
     ];
 
@@ -24,7 +24,7 @@ test('can create a user through service', function () {
     expect($user)->toBeInstanceOf(User::class);
     expect($user->name)->toBe('Test User');
     expect($user->email)->toBe('test@example.com');
-    
+
     $this->assertDatabaseHas('users', [
         'email' => 'test@example.com',
     ]);
@@ -47,9 +47,9 @@ test('can update a user', function () {
     ]);
 
     expect($result)->toBeTrue();
-    
+
     $this->assertDatabaseHas('users', [
-        'id' => $user->id,
+        'id'   => $user->id,
         'name' => 'Updated Name',
     ]);
 });
@@ -60,7 +60,7 @@ test('can delete a user', function () {
     $result = $this->userService->delete($user->id);
 
     expect($result)->toBeTrue();
-    
+
     $this->assertDatabaseMissing('users', [
         'id' => $user->id,
     ]);

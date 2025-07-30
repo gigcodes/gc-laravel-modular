@@ -27,7 +27,7 @@ test('can create login data with remember option', function () {
 
 test('can create login data from array', function () {
     $array = [
-        'email' => 'test@example.com',
+        'email'    => 'test@example.com',
         'password' => 'secret',
         'remember' => true,
     ];
@@ -41,7 +41,7 @@ test('can create login data from array', function () {
 
 test('normalizes email when creating from array', function () {
     $array = [
-        'email' => '  USER@EXAMPLE.COM  ',
+        'email'    => '  USER@EXAMPLE.COM  ',
         'password' => 'password',
     ];
 
@@ -61,7 +61,7 @@ test('can convert login data to array', function () {
     $array = $data->toArray();
 
     expect($array)->toBe([
-        'email' => 'user@example.com',
+        'email'    => 'user@example.com',
         'password' => 'password123',
         'remember' => true,
     ]);
@@ -73,7 +73,7 @@ test('login data has correct validation rules', function () {
     expect($rules)->toHaveKey('email');
     expect($rules)->toHaveKey('password');
     expect($rules)->toHaveKey('remember');
-    
+
     expect($rules['email'])->toContain('required');
     expect($rules['email'])->toContain('string');
     expect($rules['email'])->toContain('email');

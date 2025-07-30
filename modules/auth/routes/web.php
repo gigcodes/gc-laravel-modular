@@ -103,4 +103,3 @@ Route::middleware(['web', 'auth'])->group(function () {
         Route::delete('{passkey}', [PasskeyController::class, 'destroy'])->name('destroy');
     });
 });
-

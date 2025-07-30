@@ -14,8 +14,8 @@ use Modules\Auth\DTO\LoginData;
 use Modules\Auth\DTO\RegisterDTO;
 use Modules\Auth\Interfaces\AuthServiceInterface;
 use Modules\Auth\Interfaces\UserRepositoryInterface;
-use Modules\Shared\Services\Base\Concretes\BaseService;
 use Modules\Auth\Models\User;
+use Modules\Shared\Services\Base\Concretes\BaseService;
 use Throwable;
 
 class AuthService extends BaseService implements AuthServiceInterface
@@ -26,6 +26,7 @@ class AuthService extends BaseService implements AuthServiceInterface
     ) {
         $this->setRepository($this->userRepository);
     }
+
     public function login(LoginData $data): ?User
     {
         $credentials = [

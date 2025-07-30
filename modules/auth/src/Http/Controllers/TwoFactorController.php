@@ -12,9 +12,9 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Auth\Events\UserLoggedIn;
+use Modules\Auth\Models\User;
 use Modules\Auth\Services\Google2FAService;
 use Modules\Shared\Http\Controllers\BaseController;
-use Modules\Auth\Models\User;
 
 class TwoFactorController extends BaseController
 {

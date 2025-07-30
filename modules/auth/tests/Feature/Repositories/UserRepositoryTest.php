@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Repositories\UserRepository;
 use Modules\Auth\Models\User;
+use Modules\Auth\Repositories\UserRepository;
 
 uses(RefreshDatabase::class);
 
@@ -16,8 +16,8 @@ test('can get model class', function () {
 
 test('can create a user', function () {
     $userData = [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
+        'name'     => 'Test User',
+        'email'    => 'test@example.com',
         'password' => bcrypt('password'),
     ];
 
@@ -26,7 +26,7 @@ test('can create a user', function () {
     expect($user)->toBeInstanceOf(User::class);
     expect($user->name)->toBe('Test User');
     expect($user->email)->toBe('test@example.com');
-    
+
     $this->assertDatabaseHas('users', [
         'email' => 'test@example.com',
     ]);
@@ -50,9 +50,9 @@ test('can update a user by model', function () {
 
     expect($updatedUser->name)->toBe('Updated Name');
     expect($updatedUser->id)->toBe($user->id);
-    
+
     $this->assertDatabaseHas('users', [
-        'id' => $user->id,
+        'id'   => $user->id,
         'name' => 'Updated Name',
     ]);
 });
@@ -65,9 +65,9 @@ test('can update a user by id', function () {
     ]);
 
     expect($result)->toBeTrue();
-    
+
     $this->assertDatabaseHas('users', [
-        'id' => $user->id,
+        'id'   => $user->id,
         'name' => 'Updated Name',
     ]);
 });
@@ -78,7 +78,7 @@ test('can delete a user', function () {
     $result = $this->repository->delete($user->id);
 
     expect($result)->toBeTrue();
-    
+
     $this->assertDatabaseMissing('users', [
         'id' => $user->id,
     ]);
@@ -109,7 +109,7 @@ test('can build query with where conditions', function () {
 
     $query = $this->repository->query()
         ->where('name', 'like', '%Doe%');
-    
+
     $users = $query->get();
 
     expect($users)->toHaveCount(2);
@@ -146,9 +146,9 @@ test('can get users by company with employee details', function () {
     // This test assumes there's a relationship between users and companies
     // Since we don't have the company_id column or employeeDetail relationship in the migration,
     // we'll skip the actual implementation and just verify the method exists
-    
+
     $users = $this->repository->getByCompanyWithEmployeeDetails(1);
-    
+
     expect($users)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
     expect($users)->toHaveCount(0);
 });

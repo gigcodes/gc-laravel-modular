@@ -6,6 +6,4 @@ namespace Modules\Auth\Interfaces;
 
 use Modules\Shared\Services\Base\Contracts\BaseServiceInterface;
 
-interface UserServiceInterface extends BaseServiceInterface
-{
-}
+interface UserServiceInterface extends BaseServiceInterface {}

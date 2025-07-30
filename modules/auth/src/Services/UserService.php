@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Auth\Services;
 
-use Modules\Shared\Services\Base\Concretes\BaseService;
 use Modules\Auth\Interfaces\UserRepositoryInterface;
 use Modules\Auth\Interfaces\UserServiceInterface;
 use Modules\Auth\Models\User;
+use Modules\Shared\Services\Base\Concretes\BaseService;
 
 /**
  * @extends BaseService<User, UserRepositoryInterface>

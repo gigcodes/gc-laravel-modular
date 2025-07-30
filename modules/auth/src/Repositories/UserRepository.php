@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Modules\Auth\Repositories;
 
 use Illuminate\Database\Eloquent\Collection;
-use Modules\Shared\Repositories\Base\Concretes\QueryableRepository;
 use Modules\Auth\Interfaces\UserRepositoryInterface;
 use Modules\Auth\Models\User;
+use Modules\Shared\Repositories\Base\Concretes\QueryableRepository;
 
 /**
  * @extends QueryableRepository<User>

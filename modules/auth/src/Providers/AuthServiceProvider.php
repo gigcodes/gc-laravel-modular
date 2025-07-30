@@ -6,13 +6,13 @@ namespace Modules\Auth\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Modules\Auth\Interfaces\AuthServiceInterface;
+use Modules\Auth\Interfaces\UserRepositoryInterface;
+use Modules\Auth\Interfaces\UserServiceInterface;
+use Modules\Auth\Repositories\UserRepository;
 use Modules\Auth\Services\AuthService;
 use Modules\Auth\Services\Google2FAService;
 use Modules\Auth\Services\PasskeyService;
 use Modules\Auth\Services\UserService;
-use Modules\Auth\Interfaces\UserRepositoryInterface;
-use Modules\Auth\Interfaces\UserServiceInterface;
-use Modules\Auth\Repositories\UserRepository;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,10 +28,7 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      */
-    public function boot(): void
-    {
-
-    }
+    public function boot(): void {}
 
     /**
      * Bind repository interfaces to implementations.

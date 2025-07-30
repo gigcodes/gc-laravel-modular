@@ -13,16 +13,16 @@ class PasskeyFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
-            'name' => $this->faker->words(2, true),
-            'credential_id' => $this->faker->uuid(),
-            'public_key' => base64_encode($this->faker->randomLetter()),
-            'sign_count' => 0,
-            'aaguid' => $this->faker->uuid(),
-            'transports' => ['usb'],
-            'type' => 'public-key',
+            'user_id'          => User::factory(),
+            'name'             => $this->faker->words(2, true),
+            'credential_id'    => $this->faker->uuid(),
+            'public_key'       => base64_encode($this->faker->randomLetter()),
+            'sign_count'       => 0,
+            'aaguid'           => $this->faker->uuid(),
+            'transports'       => ['usb'],
+            'type'             => 'public-key',
             'attestation_data' => null,
-            'last_used_at' => null,
+            'last_used_at'     => null,
         ];
     }
 }

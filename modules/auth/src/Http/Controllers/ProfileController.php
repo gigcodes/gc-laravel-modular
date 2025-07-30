@@ -17,11 +17,11 @@ class ProfileController
     public function edit(Request $request): Response
     {
         $user = $request->user();
-        
+
         return Inertia::render('auth::settings/profile', [
-            'mustVerifyEmail' => $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail,
-            'status' => session('status'),
-            'confirmsTwoFactorAuthentication' => $user->two_factor_secret && !$user->two_factor_confirmed_at,
+            'mustVerifyEmail'                 => $user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail,
+            'status'                          => session('status'),
+            'confirmsTwoFactorAuthentication' => $user->two_factor_secret && ! $user->two_factor_confirmed_at,
         ]);
     }
 
@@ -31,7 +31,7 @@ class ProfileController
     public function update(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$request->user()->id],
         ]);
 

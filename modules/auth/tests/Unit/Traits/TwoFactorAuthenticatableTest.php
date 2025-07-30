@@ -7,12 +7,12 @@ use PragmaRX\Google2FA\Google2FA;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->google2fa = new Google2FA();
+    $this->google2fa = new Google2FA;
 });
 
 test('can get recovery codes', function () {
     $codes = ['CODE1-CODE1', 'CODE2-CODE2'];
-    $user = User::factory()->create([
+    $user  = User::factory()->create([
         'two_factor_recovery_codes' => encrypt(json_encode($codes)),
     ]);
 
@@ -33,9 +33,9 @@ test('can get recovery codes when none exist', function () {
 
 test('can get two factor QR code SVG', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
+    $user   = User::factory()->create([
         'two_factor_secret' => encrypt($secret),
-        'email' => 'test@example.com',
+        'email'             => 'test@example.com',
     ]);
 
     $svg = $user->twoFactorQrCodeSvg();
@@ -56,9 +56,9 @@ test('returns empty string for QR code SVG when no secret', function () {
 
 test('can get two factor QR code URL', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
+    $user   = User::factory()->create([
         'two_factor_secret' => encrypt($secret),
-        'email' => 'test@example.com',
+        'email'             => 'test@example.com',
     ]);
 
     $url = $user->twoFactorQrCodeUrl();
@@ -80,8 +80,8 @@ test('returns empty string for QR code URL when no secret', function () {
 
 test('can check if two factor authentication is enabled', function () {
     $userWithout2FA = User::factory()->create();
-    $userWith2FA = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
+    $userWith2FA    = User::factory()->create([
+        'two_factor_secret'       => encrypt($this->google2fa->generateSecretKey()),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -91,12 +91,12 @@ test('can check if two factor authentication is enabled', function () {
 
 test('can check if two factor authentication is confirmed', function () {
     $unconfirmedUser = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_secret'       => encrypt($this->google2fa->generateSecretKey()),
         'two_factor_confirmed_at' => null,
     ]);
-    
+
     $confirmedUser = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_secret'       => encrypt($this->google2fa->generateSecretKey()),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -106,7 +106,7 @@ test('can check if two factor authentication is confirmed', function () {
 
 test('can get decrypted two factor secret', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
+    $user   = User::factory()->create([
         'two_factor_secret' => encrypt($secret),
     ]);
 
@@ -136,9 +136,9 @@ test('can replace recovery code', function () {
     // Mock the service to simulate successful verification
     $this->mock(\Modules\Auth\Services\Google2FAService::class, function ($mock) use ($user) {
         $mock->shouldReceive('verifyRecoveryCode')
-             ->with($user, 'ABCD1234')
-             ->once()
-             ->andReturn(true);
+            ->with($user, 'ABCD1234')
+            ->once()
+            ->andReturn(true);
     });
 
     $user->replaceRecoveryCode('ABCD1234');
@@ -148,14 +148,14 @@ test('can replace recovery code', function () {
 
 test('can generate recovery codes with proper format', function () {
     $user = User::factory()->create();
-    
+
     // Use reflection to test the protected method
     $reflection = new \ReflectionClass($user);
-    $method = $reflection->getMethod('generateRecoveryCode');
+    $method     = $reflection->getMethod('generateRecoveryCode');
     $method->setAccessible(true);
-    
+
     $code = $method->invoke($user);
-    
+
     expect($code)->toBeString();
     expect(strlen($code))->toBe(8);
     // The code contains uppercase letters and numbers

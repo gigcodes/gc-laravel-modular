@@ -1,11 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Request;
 use Modules\Auth\Models\User;
-use Modules\Auth\DTO\LoginData;
-use Modules\Auth\Http\Controllers\AuthenticatedSessionController;
-use Modules\Auth\Interfaces\AuthServiceInterface;
 
 uses(RefreshDatabase::class);
 
@@ -16,10 +12,9 @@ test('login page can be rendered', function () {
     $response->assertInertia(fn ($page) => $page->component('auth::login'));
 });
 
-
 test('login page includes session status', function () {
     session(['status' => 'Password reset link sent!']);
-    
+
     $response = $this->get(route('login'));
 
     $response->assertOk();
@@ -35,7 +30,7 @@ test('users can authenticate using authenticated session controller', function (
     ]);
 
     $response = $this->post(route('login'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'password',
         'remember' => false,
     ]);
@@ -53,7 +48,7 @@ test('authentication regenerates session', function () {
     $initialSessionId = session()->getId();
 
     $response = $this->post(route('login'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'password',
         'remember' => false,
     ]);
@@ -78,7 +73,7 @@ test('users cannot authenticate with invalid credentials using authenticated ses
     ]);
 
     $response = $this->post(route('login'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'wrong-password',
         'remember' => false,
     ]);
@@ -96,7 +91,7 @@ test('authentication redirects to intended url', function () {
     $this->get('/dashboard');
 
     $response = $this->post(route('login'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'password',
         'remember' => false,
     ]);
@@ -104,4 +99,3 @@ test('authentication redirects to intended url', function () {
     $response->assertRedirect(route('dashboard'));
     $this->assertAuthenticated();
 });
-

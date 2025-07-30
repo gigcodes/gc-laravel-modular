@@ -46,7 +46,7 @@ test('password confirmation status can be checked', function () {
 
     // Confirm password
     session(['auth.password_confirmed_at' => time()]);
-    
+
     $response = $this->actingAs($user)->get(route('password.confirmation'));
     $response->assertJson(['confirmed' => true]);
 });

@@ -54,24 +54,22 @@ class User extends Authenticatable implements PasskeyUser
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'       => 'datetime',
+            'password'                => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
-            'last_login_at' => 'datetime',
+            'last_login_at'           => 'datetime',
         ];
     }
-    
+
     /**
      * The accessors to append to the model's array form.
      *
      * @var array
      */
     protected $appends = ['two_factor_enabled', 'profile_photo_url'];
-    
+
     /**
      * Determine if two-factor authentication is enabled.
-     *
-     * @return bool
      */
     public function getTwoFactorEnabledAttribute(): bool
     {

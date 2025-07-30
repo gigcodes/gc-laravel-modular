@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Modules\Auth\Models\User;
 use Modules\Shared\Repositories\Base\Contracts\QueryableRepositoryInterface;
 use Modules\Shared\Services\Base\Contracts\BaseServiceInterface;
-use Modules\Auth\Models\User;
 use Spatie\LaravelData\Data;
 
 /**

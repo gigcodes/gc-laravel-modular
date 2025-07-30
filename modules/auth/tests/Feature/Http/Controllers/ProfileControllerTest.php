@@ -22,7 +22,7 @@ test('profile information can be updated', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->patch(route('profile.update'), [
-        'name' => 'Updated Name',
+        'name'  => 'Updated Name',
         'email' => 'updated@example.com',
     ]);
 
@@ -41,7 +41,7 @@ test('email verification status is unchanged when email is not updated', functio
     ]);
 
     $response = $this->actingAs($user)->patch(route('profile.update'), [
-        'name' => 'Updated Name',
+        'name'  => 'Updated Name',
         'email' => $user->email,
     ]);
 
@@ -57,7 +57,7 @@ test('user cannot update profile with invalid email', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->patch(route('profile.update'), [
-        'name' => 'Updated Name',
+        'name'  => 'Updated Name',
         'email' => 'invalid-email',
     ]);
 
@@ -65,11 +65,11 @@ test('user cannot update profile with invalid email', function () {
 });
 
 test('user cannot update profile with existing email', function () {
-    $user = User::factory()->create();
+    $user      = User::factory()->create();
     $otherUser = User::factory()->create();
 
     $response = $this->actingAs($user)->patch(route('profile.update'), [
-        'name' => 'Updated Name',
+        'name'  => 'Updated Name',
         'email' => $otherUser->email,
     ]);
 
@@ -80,7 +80,7 @@ test('user cannot update profile without name', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->patch(route('profile.update'), [
-        'name' => '',
+        'name'  => '',
         'email' => $user->email,
     ]);
 
@@ -122,7 +122,7 @@ test('unauthenticated users cannot access profile page', function () {
 
 test('unauthenticated users cannot update profile', function () {
     $response = $this->patch(route('profile.update'), [
-        'name' => 'Test',
+        'name'  => 'Test',
         'email' => 'test@example.com',
     ]);
 

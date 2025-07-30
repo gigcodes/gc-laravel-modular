@@ -15,7 +15,7 @@ abstract class TestCase extends BaseTestCase
 
         // Mock Vite manifest for tests
         $this->withoutVite();
-        
+
         // Disable Inertia page existence check for tests
         config(['inertia.testing.ensure_pages_exist' => false]);
     }

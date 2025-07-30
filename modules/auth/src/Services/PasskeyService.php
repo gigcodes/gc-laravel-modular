@@ -6,14 +6,15 @@ namespace Modules\Auth\Services;
 
 use Modules\Auth\Interfaces\PasskeyUser;
 use Modules\Auth\Models\Passkey;
-use Modules\Shared\Services\Base\Concretes\BaseService;
 use Modules\Auth\Models\User;
+use Modules\Shared\Services\Base\Concretes\BaseService;
 use Random\RandomException;
 
 class PasskeyService extends BaseService
 {
     /**
      * Generate registration options for a user.
+     *
      * @throws RandomException
      */
     public function generateRegistrationOptions(PasskeyUser $user): array

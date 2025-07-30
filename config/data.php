@@ -36,9 +36,9 @@ return [
      * types.
      */
     'transformers' => [
-        DateTimeInterface::class => \Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer::class,
+        DateTimeInterface::class                       => \Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer::class,
         \Illuminate\Contracts\Support\Arrayable::class => \Spatie\LaravelData\Transformers\ArrayableTransformer::class,
-        BackedEnum::class => Spatie\LaravelData\Transformers\EnumTransformer::class,
+        BackedEnum::class                              => Spatie\LaravelData\Transformers\EnumTransformer::class,
     ],
 
     /*
@@ -47,8 +47,8 @@ return [
      */
     'casts' => [
         DateTimeInterface::class => Spatie\LaravelData\Casts\DateTimeInterfaceCast::class,
-        BackedEnum::class => Spatie\LaravelData\Casts\EnumCast::class,
-//        Enumerable::class => Spatie\LaravelData\Casts\EnumerableCast::class,
+        BackedEnum::class        => Spatie\LaravelData\Casts\EnumCast::class,
+        //        Enumerable::class => Spatie\LaravelData\Casts\EnumerableCast::class,
     ],
 
     /*
@@ -105,16 +105,16 @@ return [
      * timeframe.
      */
     'structure_caching' => [
-        'enabled' => true,
+        'enabled'     => true,
         'directories' => [app_path('Data')],
-        'cache' => [
-            'store' => env('CACHE_STORE', env('CACHE_DRIVER', 'file')),
-            'prefix' => 'laravel-data',
+        'cache'       => [
+            'store'    => env('CACHE_STORE', env('CACHE_DRIVER', 'file')),
+            'prefix'   => 'laravel-data',
             'duration' => null,
         ],
         'reflection_discovery' => [
-            'enabled' => true,
-            'base_path' => base_path(),
+            'enabled'        => true,
+            'base_path'      => base_path(),
             'root_namespace' => null,
         ],
     ],
@@ -132,7 +132,7 @@ return [
      * global strategy here, or override it on a specific data object.
      */
     'name_mapping_strategy' => [
-        'input' => null,
+        'input'  => null,
         'output' => null,
     ],
 

@@ -1,6 +1,5 @@
 <?php
 
-
 if (! function_exists('module_path')) {
     /**
      * Get the path to a module directory or file.
@@ -16,7 +15,7 @@ if (! function_exists('module_path')) {
             return $basePath;
         }
 
-        return $basePath . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
+        return $basePath.DIRECTORY_SEPARATOR.ltrim($path, DIRECTORY_SEPARATOR);
     }
 }
 
@@ -24,8 +23,8 @@ if (! function_exists('module_asset')) {
     /**
      * Generate an asset path for a module.
      *
-     * @param string      $module The module name
-     * @param string      $path   Asset path within the module
+     * @param string $module The module name
+     * @param string $path   Asset path within the module
      */
     function module_asset(string $module, string $path): string
     {

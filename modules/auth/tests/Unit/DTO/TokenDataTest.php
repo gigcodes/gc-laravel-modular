@@ -27,8 +27,8 @@ test('can create token data with all fields', function () {
 test('can create token data from array', function () {
     $data = [
         'access_token' => 'test-token',
-        'token_type' => 'Bearer',
-        'expires_in' => 7200,
+        'token_type'   => 'Bearer',
+        'expires_in'   => 7200,
     ];
 
     $tokenData = TokenData::from($data);
@@ -49,7 +49,7 @@ test('can convert token data to array', function () {
 
     expect($array)->toBe([
         'access_token' => 'test-token',
-        'token_type' => 'Bearer',
-        'expires_in' => 3600,
+        'token_type'   => 'Bearer',
+        'expires_in'   => 3600,
     ]);
 });

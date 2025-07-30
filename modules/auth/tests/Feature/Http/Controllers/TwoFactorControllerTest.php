@@ -3,18 +3,17 @@
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Auth\Models\User;
 use PragmaRX\Google2FA\Google2FA;
-use Illuminate\Support\Facades\Crypt;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->google2fa = new Google2FA();
+    $this->google2fa = new Google2FA;
 });
 
 test('two factor challenge page can be rendered', function () {
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => 1,
+        'auth.two_factor_user_id'  => 1,
     ]);
 
     $response = $this->get(route('two-factor.challenge'));
@@ -36,7 +35,7 @@ test('two factor can be enabled', function () {
 
 test('two factor cannot be enabled if already enabled', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_secret'       => encrypt($this->google2fa->generateSecretKey()),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -68,7 +67,7 @@ test('two factor QR code returns error when not set up', function () {
 
 test('two factor secret key can be retrieved', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
+    $user   = User::factory()->create([
         'two_factor_secret' => encrypt($secret),
     ]);
 
@@ -89,7 +88,7 @@ test('two factor secret key returns error when not set up', function () {
 
 test('two factor recovery codes can be retrieved', function () {
     $codes = ['code1', 'code2', 'code3', 'code4', 'code5', 'code6', 'code7', 'code8'];
-    $user = User::factory()->create([
+    $user  = User::factory()->create([
         'two_factor_recovery_codes' => encrypt(json_encode($codes)),
     ]);
 
@@ -110,8 +109,8 @@ test('two factor recovery codes returns error when not available', function () {
 
 test('two factor recovery codes can be regenerated', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
-        'two_factor_confirmed_at' => now(),
+        'two_factor_secret'         => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_confirmed_at'   => now(),
         'two_factor_recovery_codes' => encrypt(json_encode(['old1', 'old2'])),
     ]);
 
@@ -123,7 +122,7 @@ test('two factor recovery codes can be regenerated', function () {
     ]);
 
     $response->assertRedirect();
-    
+
     $newCodes = json_decode(decrypt($user->fresh()->two_factor_recovery_codes), true);
     expect($newCodes)->toHaveCount(8);
     expect($newCodes)->not->toContain('old1');
@@ -131,8 +130,8 @@ test('two factor recovery codes can be regenerated', function () {
 
 test('two factor recovery codes regeneration fails without password confirmation', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
-        'two_factor_confirmed_at' => now(),
+        'two_factor_secret'         => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_confirmed_at'   => now(),
         'two_factor_recovery_codes' => encrypt(json_encode(['old1', 'old2'])),
     ]);
 
@@ -164,8 +163,8 @@ test('two factor recovery codes regeneration fails when not fully enabled', func
 
 test('two factor can be confirmed', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
-        'two_factor_secret' => encrypt($secret),
+    $user   = User::factory()->create([
+        'two_factor_secret'       => encrypt($secret),
         'two_factor_confirmed_at' => null,
     ]);
 
@@ -191,8 +190,8 @@ test('two factor confirm returns 404 when no secret', function () {
 
 test('two factor confirm returns error when already confirmed', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
-        'two_factor_secret' => encrypt($secret),
+    $user   = User::factory()->create([
+        'two_factor_secret'       => encrypt($secret),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -208,7 +207,7 @@ test('two factor confirm returns error when already confirmed', function () {
 
 test('two factor cannot be confirmed with invalid code', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_secret'       => encrypt($this->google2fa->generateSecretKey()),
         'two_factor_confirmed_at' => null,
     ]);
 
@@ -222,8 +221,8 @@ test('two factor cannot be confirmed with invalid code', function () {
 
 test('two factor can be disabled', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
-        'two_factor_confirmed_at' => now(),
+        'two_factor_secret'         => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_confirmed_at'   => now(),
         'two_factor_recovery_codes' => encrypt(json_encode(['code1', 'code2'])),
     ]);
 
@@ -243,8 +242,8 @@ test('two factor can be disabled', function () {
 
 test('two factor disable fails without password confirmation', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
-        'two_factor_confirmed_at' => now(),
+        'two_factor_secret'         => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_confirmed_at'   => now(),
         'two_factor_recovery_codes' => encrypt(json_encode(['code1', 'code2'])),
     ]);
 
@@ -258,15 +257,15 @@ test('two factor disable fails without password confirmation', function () {
 
 test('two factor challenge can be verified', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
-        'two_factor_secret' => encrypt($secret),
+    $user   = User::factory()->create([
+        'two_factor_secret'       => encrypt($secret),
         'two_factor_confirmed_at' => now(),
     ]);
 
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => false,
+        'auth.two_factor_user_id'  => $user->id,
+        'auth.remember'            => false,
     ]);
 
     $validCode = $this->google2fa->getCurrentOtp($secret);
@@ -296,8 +295,8 @@ test('two factor verify requires session data', function () {
 test('two factor verify handles invalid user', function () {
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => 999999, // non-existent user
-        'auth.remember' => false,
+        'auth.two_factor_user_id'  => 999999, // non-existent user
+        'auth.remember'            => false,
     ]);
 
     $response = $this->post(route('two-factor.verify'), [
@@ -309,15 +308,15 @@ test('two factor verify handles invalid user', function () {
 
 test('two factor verify can use recovery code', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
-        'two_factor_confirmed_at' => now(),
+        'two_factor_secret'         => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_confirmed_at'   => now(),
         'two_factor_recovery_codes' => encrypt(json_encode(['recovery123', 'recovery456'])),
     ]);
 
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => false,
+        'auth.two_factor_user_id'  => $user->id,
+        'auth.remember'            => false,
     ]);
 
     $response = $this->post(route('two-factor.verify'), [
@@ -330,15 +329,15 @@ test('two factor verify can use recovery code', function () {
 
 test('two factor verify fails with invalid recovery code', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
-        'two_factor_confirmed_at' => now(),
+        'two_factor_secret'         => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_confirmed_at'   => now(),
         'two_factor_recovery_codes' => encrypt(json_encode(['recovery123', 'recovery456'])),
     ]);
 
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => false,
+        'auth.two_factor_user_id'  => $user->id,
+        'auth.remember'            => false,
     ]);
 
     $response = $this->post(route('two-factor.verify'), [
@@ -350,14 +349,14 @@ test('two factor verify fails with invalid recovery code', function () {
 
 test('two factor verify fails with invalid code', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt($this->google2fa->generateSecretKey()),
+        'two_factor_secret'       => encrypt($this->google2fa->generateSecretKey()),
         'two_factor_confirmed_at' => now(),
     ]);
 
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => false,
+        'auth.two_factor_user_id'  => $user->id,
+        'auth.remember'            => false,
     ]);
 
     $response = $this->post(route('two-factor.verify'), [
@@ -369,15 +368,15 @@ test('two factor verify fails with invalid code', function () {
 
 test('two factor verify returns json for ajax requests', function () {
     $secret = $this->google2fa->generateSecretKey();
-    $user = User::factory()->create([
-        'two_factor_secret' => encrypt($secret),
+    $user   = User::factory()->create([
+        'two_factor_secret'       => encrypt($secret),
         'two_factor_confirmed_at' => now(),
     ]);
 
     session([
         'auth.two_factor_required' => true,
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => false,
+        'auth.two_factor_user_id'  => $user->id,
+        'auth.remember'            => false,
     ]);
 
     $validCode = $this->google2fa->getCurrentOtp($secret);
@@ -388,7 +387,7 @@ test('two factor verify returns json for ajax requests', function () {
 
     $response->assertOk();
     $response->assertJson([
-        'success' => true,
+        'success'  => true,
         'redirect' => route('dashboard'),
     ]);
 });

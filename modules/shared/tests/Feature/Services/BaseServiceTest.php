@@ -1,9 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Shared\Services\Base\Concretes\BaseService;
-use Modules\Shared\Repositories\Base\Concretes\BaseRepository;
 use Modules\Auth\Models\User;
+use Modules\Shared\Services\Base\Concretes\BaseService;
 
 uses(RefreshDatabase::class);
 
@@ -25,8 +24,8 @@ class TestService extends BaseService
 }
 
 beforeEach(function () {
-    $this->repository = new TestServiceRepository();
-    $this->service = new TestService($this->repository);
+    $this->repository = new TestServiceRepository;
+    $this->service    = new TestService($this->repository);
 });
 
 test('can instantiate base service', function () {
@@ -35,8 +34,8 @@ test('can instantiate base service', function () {
 
 test('can create a record through service', function () {
     $data = [
-        'name' => 'Test User',
-        'email' => 'test@example.com',
+        'name'     => 'Test User',
+        'email'    => 'test@example.com',
         'password' => bcrypt('password'),
     ];
 
@@ -64,9 +63,9 @@ test('can update a record through service', function () {
     ]);
 
     expect($result)->toBeTrue();
-    
+
     $this->assertDatabaseHas('users', [
-        'id' => $user->id,
+        'id'   => $user->id,
         'name' => 'Updated Name',
     ]);
 });
@@ -77,7 +76,7 @@ test('can delete a record through service', function () {
     $result = $this->service->delete($user->id);
 
     expect($result)->toBeTrue();
-    
+
     $this->assertDatabaseMissing('users', [
         'id' => $user->id,
     ]);
@@ -172,57 +171,59 @@ test('can use findOrFail through service', function () {
 });
 
 test('findOrFail throws exception for non-existent record', function () {
-    expect(fn() => $this->service->findOrFail(999999))
+    expect(fn () => $this->service->findOrFail(999999))
         ->toThrow(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
 });
 
 test('can get repository instance', function () {
     $repository = $this->service->getRepository();
-    
+
     expect($repository)->toBeInstanceOf(\Modules\Shared\Repositories\Base\Contracts\QueryableRepositoryInterface::class);
 });
 
 test('can get filtered results', function () {
     User::factory()->count(3)->create();
-    
+
     $results = $this->service->getFiltered();
-    
+
     expect($results)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
     expect($results)->toHaveCount(3);
 });
 
 test('can get filtered results with specific columns', function () {
     User::factory()->count(2)->create();
-    
+
     $results = $this->service->getFiltered(['id', 'name']);
-    
+
     expect($results)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
     expect($results)->toHaveCount(2);
 });
 
 test('can get current user through service', function () {
     $user = User::factory()->create();
-    
+
     $this->actingAs($user);
-    
+
     $currentUser = $this->service->user();
-    
+
     expect($currentUser)->toBeInstanceOf(User::class);
     expect($currentUser->id)->toBe($user->id);
 });
 
 test('can create record with Data object', function () {
-    $data = new class('Test User', 'test@example.com', bcrypt('password')) extends \Spatie\LaravelData\Data {
+    $data = new class('Test User', 'test@example.com', bcrypt('password')) extends \Spatie\LaravelData\Data
+    {
         public function __construct(
             public string $name,
             public string $email,
             public string $password,
         ) {}
-        
-        public function toArray(): array {
+
+        public function toArray(): array
+        {
             return [
-                'name' => $this->name,
-                'email' => $this->email,
+                'name'     => $this->name,
+                'email'    => $this->email,
                 'password' => $this->password,
             ];
         }
@@ -237,13 +238,15 @@ test('can create record with Data object', function () {
 
 test('can update record with Data object', function () {
     $user = User::factory()->create();
-    
-    $data = new class('Updated Name') extends \Spatie\LaravelData\Data {
+
+    $data = new class('Updated Name') extends \Spatie\LaravelData\Data
+    {
         public function __construct(
             public string $name,
         ) {}
-        
-        public function toArray(): array {
+
+        public function toArray(): array
+        {
             return [
                 'name' => $this->name,
             ];
@@ -253,9 +256,9 @@ test('can update record with Data object', function () {
     $result = $this->service->update($user->id, $data);
 
     expect($result)->toBeTrue();
-    
+
     $this->assertDatabaseHas('users', [
-        'id' => $user->id,
+        'id'   => $user->id,
         'name' => 'Updated Name',
     ]);
 });

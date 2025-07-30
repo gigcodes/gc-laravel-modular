@@ -12,6 +12,7 @@ class VerifyEmailController extends BaseController
     public function __construct(
         private readonly AuthServiceInterface $authService,
     ) {}
+
     public function __invoke(EmailVerificationRequest $request): RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {

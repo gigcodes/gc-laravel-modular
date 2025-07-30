@@ -9,7 +9,7 @@ uses(RefreshDatabase::class);
 
 test('can create auth response data with all fields', function () {
     $now = Carbon::now();
-    
+
     $authResponse = new AuthResponseData(
         id: 1,
         name: 'John Doe',
@@ -35,10 +35,10 @@ test('can create auth response data with all fields', function () {
 
 test('can create auth response data from user model', function () {
     $user = User::factory()->create([
-        'name' => 'Jane Doe',
-        'email' => 'jane@example.com',
+        'name'              => 'Jane Doe',
+        'email'             => 'jane@example.com',
         'email_verified_at' => now(),
-        'last_login_at' => now(),
+        'last_login_at'     => now(),
     ]);
 
     $authResponse = AuthResponseData::fromModel($user);
@@ -57,7 +57,7 @@ test('can create auth response data from user model', function () {
 test('can handle null values for optional fields', function () {
     $user = User::factory()->create([
         'email_verified_at' => null,
-        'last_login_at' => null,
+        'last_login_at'     => null,
     ]);
 
     $authResponse = AuthResponseData::fromModel($user);

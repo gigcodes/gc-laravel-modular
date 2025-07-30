@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Models\User;
 use Modules\Auth\Http\Middleware\TwoFactorMiddleware;
+use Modules\Auth\Models\User;
 
 uses(RefreshDatabase::class);
 
@@ -16,7 +16,7 @@ test('allows access when user has no two factor enabled', function () {
 
 test('allows access when two factor is verified', function () {
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt('secret'),
+        'two_factor_secret'       => encrypt('secret'),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -33,7 +33,7 @@ test('redirects to two factor challenge when not verified', function () {
     });
 
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt('secret'),
+        'two_factor_secret'       => encrypt('secret'),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -60,7 +60,7 @@ test('redirects to two factor challenge for json requests', function () {
     });
 
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt('secret'),
+        'two_factor_secret'       => encrypt('secret'),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -69,10 +69,10 @@ test('redirects to two factor challenge for json requests', function () {
 
     $response->assertStatus(423)
         ->assertJson([
-            'message' => 'Two-factor authentication required.',
+            'message'             => 'Two-factor authentication required.',
             'two_factor_required' => true,
         ]);
-    
+
     expect(session('auth.two_factor_required'))->toBeTrue();
     expect(session('auth.two_factor_user_id'))->toBe($user->id);
     $this->assertGuest(); // User should be logged out
@@ -84,7 +84,7 @@ test('logs out user when two factor not verified', function () {
     });
 
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt('secret'),
+        'two_factor_secret'       => encrypt('secret'),
         'two_factor_confirmed_at' => now(),
     ]);
 
@@ -105,7 +105,7 @@ test('allows access when user has no two factor enabled specifically', function 
     });
 
     $user = User::factory()->create([
-        'two_factor_secret' => null,
+        'two_factor_secret'       => null,
         'two_factor_confirmed_at' => null,
     ]);
 
@@ -121,10 +121,10 @@ test('allows access when two factor is already verified in session specifically'
     });
 
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt('secret'),
+        'two_factor_secret'       => encrypt('secret'),
         'two_factor_confirmed_at' => now(),
     ]);
-    
+
     // Set session to indicate two-factor is already verified
     session(['auth.two_factor_verified' => $user->id]);
 

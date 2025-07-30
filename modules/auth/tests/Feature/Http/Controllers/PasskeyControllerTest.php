@@ -1,16 +1,14 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Models\User;
 use Modules\Auth\Models\Passkey;
-use Webauthn\PublicKeyCredentialCreationOptions;
-use Webauthn\PublicKeyCredentialSource;
+use Modules\Auth\Models\User;
 
 uses(RefreshDatabase::class);
 
 test('can get user passkeys', function () {
     $user = User::factory()->create();
-    
+
     Passkey::factory()->count(3)->create([
         'user_id' => $user->id,
     ]);
@@ -42,11 +40,11 @@ test('can register a passkey', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->post(route('passkeys.store'), [
-        'name' => 'My Security Key',
+        'name'       => 'My Security Key',
         'credential' => [
-            'id' => 'credential-id',
-            'publicKey' => base64_encode('public-key-data'),
-            'signCount' => 0,
+            'id'         => 'credential-id',
+            'publicKey'  => base64_encode('public-key-data'),
+            'signCount'  => 0,
             'transports' => ['usb'],
         ],
     ]);
@@ -54,15 +52,15 @@ test('can register a passkey', function () {
     $response->assertOk();
     $this->assertDatabaseHas('passkeys', [
         'user_id' => $user->id,
-        'name' => 'My Security Key',
+        'name'    => 'My Security Key',
     ]);
 });
 
 test('can update passkey name', function () {
-    $user = User::factory()->create();
+    $user    = User::factory()->create();
     $passkey = Passkey::factory()->create([
         'user_id' => $user->id,
-        'name' => 'Old Name',
+        'name'    => 'Old Name',
     ]);
 
     $response = $this->actingAs($user)->put(route('passkeys.update', $passkey), [
@@ -74,9 +72,9 @@ test('can update passkey name', function () {
 });
 
 test('cannot update another users passkey', function () {
-    $user = User::factory()->create();
+    $user      = User::factory()->create();
     $otherUser = User::factory()->create();
-    $passkey = Passkey::factory()->create([
+    $passkey   = Passkey::factory()->create([
         'user_id' => $otherUser->id,
     ]);
 
@@ -88,7 +86,7 @@ test('cannot update another users passkey', function () {
 });
 
 test('can delete passkey', function () {
-    $user = User::factory()->create();
+    $user    = User::factory()->create();
     $passkey = Passkey::factory()->create([
         'user_id' => $user->id,
     ]);
@@ -102,9 +100,9 @@ test('can delete passkey', function () {
 });
 
 test('cannot delete another users passkey', function () {
-    $user = User::factory()->create();
+    $user      = User::factory()->create();
     $otherUser = User::factory()->create();
-    $passkey = Passkey::factory()->create([
+    $passkey   = Passkey::factory()->create([
         'user_id' => $otherUser->id,
     ]);
 
@@ -121,11 +119,11 @@ test('registration options redirects unauthenticated user', function () {
 
 test('registration options handles service exceptions', function () {
     $user = User::factory()->create();
-    
+
     // Mock the service to throw an exception
     $this->mock(\Modules\Auth\Services\PasskeyService::class, function ($mock) {
         $mock->shouldReceive('generateRegistrationOptions')
-             ->andThrow(new \Exception('Service error'));
+            ->andThrow(new \Exception('Service error'));
     });
 
     $response = $this->actingAs($user)->post(route('passkeys.registration.options'));
@@ -139,17 +137,17 @@ test('registration options handles service exceptions', function () {
 
 test('store passkey handles service exceptions', function () {
     $user = User::factory()->create();
-    
+
     // Mock the service to throw an exception
     $this->mock(\Modules\Auth\Services\PasskeyService::class, function ($mock) {
         $mock->shouldReceive('storePasskey')
-             ->andThrow(new \Exception('Storage error'));
+            ->andThrow(new \Exception('Storage error'));
     });
 
     $response = $this->actingAs($user)->post(route('passkeys.store'), [
-        'name' => 'Test Key',
+        'name'       => 'Test Key',
         'credential' => [
-            'id' => 'test-id',
+            'id'        => 'test-id',
             'publicKey' => base64_encode('test-key'),
             'signCount' => 0,
         ],
@@ -164,9 +162,9 @@ test('store passkey handles service exceptions', function () {
 
 test('store passkey redirects unauthenticated user', function () {
     $response = $this->post(route('passkeys.store'), [
-        'name' => 'Test Key',
+        'name'       => 'Test Key',
         'credential' => [
-            'id' => 'test-id',
+            'id'        => 'test-id',
             'publicKey' => base64_encode('test-key'),
         ],
     ]);
@@ -183,9 +181,9 @@ test('registration options returns json error for unauthenticated json request',
 
 test('store passkey returns json error for unauthenticated json request', function () {
     $response = $this->postJson(route('passkeys.store'), [
-        'name' => 'Test Key',
+        'name'       => 'Test Key',
         'credential' => [
-            'id' => 'test-id',
+            'id'        => 'test-id',
             'publicKey' => base64_encode('test-key'),
         ],
     ]);

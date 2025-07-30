@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Models\User;
 use Modules\Auth\Models\Passkey;
+use Modules\Auth\Models\User;
 
 uses(RefreshDatabase::class);
 
@@ -19,22 +19,22 @@ test('can get authentication options', function () {
 });
 
 test('can authenticate with passkey', function () {
-    $user = User::factory()->create();
+    $user    = User::factory()->create();
     $passkey = Passkey::factory()->create([
-        'user_id' => $user->id,
+        'user_id'       => $user->id,
         'credential_id' => 'test-credential-id',
     ]);
 
     $response = $this->postJson(route('passkey.auth.verify'), [
         'credential' => [
-            'id' => 'test-credential-id',
-            'rawId' => 'test-credential-raw-id',
-            'type' => 'public-key',
+            'id'       => 'test-credential-id',
+            'rawId'    => 'test-credential-raw-id',
+            'type'     => 'public-key',
             'response' => [
-                'clientDataJSON' => base64_encode(json_encode(['type' => 'webauthn.get'])),
+                'clientDataJSON'    => base64_encode(json_encode(['type' => 'webauthn.get'])),
                 'authenticatorData' => base64_encode('authenticator-data'),
-                'signature' => base64_encode('signature'),
-                'userHandle' => base64_encode($user->id),
+                'signature'         => base64_encode('signature'),
+                'userHandle'        => base64_encode($user->id),
             ],
         ],
     ]);
@@ -48,7 +48,7 @@ test('can check user passkeys by email', function () {
     $user = User::factory()->create([
         'email' => 'test@example.com',
     ]);
-    
+
     Passkey::factory()->count(2)->create([
         'user_id' => $user->id,
     ]);
@@ -59,7 +59,7 @@ test('can check user passkeys by email', function () {
 
     $response->assertOk();
     $response->assertJson([
-        'hasPasskeys' => true,
+        'hasPasskeys'  => true,
         'passkeyCount' => 2,
     ]);
 });
@@ -75,7 +75,7 @@ test('returns false for user without passkeys', function () {
 
     $response->assertOk();
     $response->assertJson([
-        'hasPasskeys' => false,
+        'hasPasskeys'  => false,
         'passkeyCount' => 0,
     ]);
 });
@@ -108,7 +108,7 @@ test('can get authentication options with email provided', function () {
 test('passkey authentication fails with invalid credentials', function () {
     $response = $this->postJson(route('passkey.auth.verify'), [
         'credential' => [
-            'id' => 'invalid-id',
+            'id'       => 'invalid-id',
             'response' => 'invalid-response',
         ],
     ]);
@@ -131,12 +131,12 @@ test('passkey authentication handles validation errors', function () {
 });
 
 test('passkey authentication returns redirect for non-json requests', function () {
-    $user = User::factory()->create();
+    $user    = User::factory()->create();
     $passkey = Passkey::factory()->create(['user_id' => $user->id]);
 
     $response = $this->post(route('passkey.auth.verify'), [
         'credential' => [
-            'id' => $passkey->credential_id,
+            'id'        => $passkey->credential_id,
             'signCount' => 1,
         ],
     ]);
@@ -148,12 +148,12 @@ test('passkey authentication returns redirect for non-json requests', function (
 test('passkey authentication handles service exceptions', function () {
     $this->mock(\Modules\Auth\Services\PasskeyService::class, function ($mock) {
         $mock->shouldReceive('verifyAuthentication')
-             ->andThrow(new \Exception('Service error'));
+            ->andThrow(new \Exception('Service error'));
     });
 
     $response = $this->postJson(route('passkey.auth.verify'), [
         'credential' => [
-            'id' => 'test-id',
+            'id'       => 'test-id',
             'response' => 'test-response',
         ],
     ]);

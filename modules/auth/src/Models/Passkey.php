@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Auth\Database\Factories\PasskeyFactory;
-use Modules\Auth\Models\User;
 
 /**
  * @property string              $id

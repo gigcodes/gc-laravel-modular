@@ -48,9 +48,9 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'translations' => function () use ($request) {
-                $locale = app()->getLocale();
+            'sidebarOpen'  => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'translations' => function () {
+                $locale   = app()->getLocale();
                 $cacheKey = "translations.{$locale}";
 
                 $cacheDuration = app()->environment('production') ? 86400 : 300;
@@ -58,12 +58,12 @@ class HandleInertiaRequests extends Middleware
                 return cache()->remember($cacheKey, $cacheDuration, function () use ($locale) {
                     $translations = [];
 
-                    $routeName = request()->route()?->getName() ?? '';
-                    $routeParts = explode('::', $routeName);
+                    $routeName    = request()->route()?->getName() ?? '';
+                    $routeParts   = explode('::', $routeName);
                     $activeModule = count($routeParts) > 1 ? $routeParts[0] : null;
 
                     $essentialFiles = ['validation', 'pagination', 'auth'];
-                    $appLangPath = base_path("lang/{$locale}");
+                    $appLangPath    = base_path("lang/{$locale}");
 
                     if (File::exists($appLangPath)) {
                         foreach ($essentialFiles as $file) {
@@ -87,7 +87,7 @@ class HandleInertiaRequests extends Middleware
                                 if ($file->getExtension() === 'php') {
                                     $content = require $file->getRealPath();
                                     if (is_array($content)) {
-                                        $group = $file->getBasename('.' . $file->getExtension());
+                                        $group        = $file->getBasename('.'.$file->getExtension());
                                         $translations = array_merge(
                                             $translations,
                                             Arr::dot($content, "{$activeModule}.{$group}.")

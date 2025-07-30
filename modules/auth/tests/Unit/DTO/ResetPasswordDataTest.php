@@ -18,9 +18,9 @@ test('can create reset password data with all fields', function () {
 
 test('can create reset password data from array', function () {
     $array = [
-        'token' => 'token-abc',
-        'email' => 'test@example.com',
-        'password' => 'secret123',
+        'token'                 => 'token-abc',
+        'email'                 => 'test@example.com',
+        'password'              => 'secret123',
         'password_confirmation' => 'secret123',
     ];
 
@@ -43,9 +43,9 @@ test('can convert reset password data to array', function () {
     $array = $data->toArray();
 
     expect($array)->toBe([
-        'token' => 'token-xyz',
-        'email' => 'user@example.com',
-        'password' => 'password123',
+        'token'                 => 'token-xyz',
+        'email'                 => 'user@example.com',
+        'password'              => 'password123',
         'password_confirmation' => 'password123',
     ]);
 });
@@ -57,7 +57,7 @@ test('reset password data has correct validation rules', function () {
     expect($rules)->toHaveKey('email');
     expect($rules)->toHaveKey('password');
     expect($rules)->toHaveKey('password_confirmation');
-    
+
     expect($rules['token'])->toContain('required');
     expect($rules['email'])->toContain('required');
     expect($rules['email'])->toContain('email');

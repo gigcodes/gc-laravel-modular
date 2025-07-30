@@ -9,9 +9,9 @@ use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use Illuminate\Support\Facades\Crypt;
-use Modules\Shared\Services\Base\Concretes\BaseService;
 use Modules\Auth\Interfaces\UserRepositoryInterface;
 use Modules\Auth\Models\User;
+use Modules\Shared\Services\Base\Concretes\BaseService;
 use PragmaRX\Google2FALaravel\Facade as Google2FA;
 use Random\RandomException;
 

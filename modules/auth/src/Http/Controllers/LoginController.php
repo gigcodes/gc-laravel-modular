@@ -13,8 +13,8 @@ use Inertia\Response;
 use Modules\Auth\DTO\LoginData;
 use Modules\Auth\Events\UserLoggedIn;
 use Modules\Auth\Interfaces\AuthServiceInterface;
-use Modules\Shared\Http\Controllers\BaseController;
 use Modules\Auth\Models\User;
+use Modules\Shared\Http\Controllers\BaseController;
 
 class LoginController extends BaseController
 {

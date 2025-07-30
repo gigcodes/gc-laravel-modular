@@ -9,9 +9,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Modules\Auth\Models\User;
 use Modules\Auth\Services\PasskeyService;
 use Modules\Shared\Http\Controllers\BaseController;
-use Modules\Auth\Models\User;
 
 class PasskeyAuthController extends BaseController
 {

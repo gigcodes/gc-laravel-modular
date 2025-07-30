@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Shared\Repositories\Base\Concretes\QueryableRepository;
 use Modules\Auth\Models\User;
+use Modules\Shared\Repositories\Base\Concretes\QueryableRepository;
 
 uses(RefreshDatabase::class);
 
@@ -16,7 +16,7 @@ class TestQueryableRepository extends QueryableRepository
 }
 
 beforeEach(function () {
-    $this->repository = new TestQueryableRepository();
+    $this->repository = new TestQueryableRepository;
 });
 
 test('can paginate filtered results', function () {
@@ -30,7 +30,7 @@ test('can paginate filtered results', function () {
 
 test('paginates filtered results with per_page from request', function () {
     User::factory()->count(20)->create();
-    
+
     // Simulate request with per_page parameter
     request()->merge(['per_page' => 5]);
 
@@ -42,7 +42,7 @@ test('paginates filtered results with per_page from request', function () {
 
 test('paginates filtered results with null per_page from request uses default', function () {
     User::factory()->count(15)->create();
-    
+
     // Simulate request with null per_page parameter
     request()->merge(['per_page' => null]);
 

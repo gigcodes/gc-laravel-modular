@@ -22,8 +22,8 @@ test('can update profile photo', function () {
 });
 
 test('updating profile photo deletes previous photo', function () {
-    $user = User::factory()->create();
-    $firstFile = UploadedFile::fake()->image('avatar1.jpg');
+    $user       = User::factory()->create();
+    $firstFile  = UploadedFile::fake()->image('avatar1.jpg');
     $secondFile = UploadedFile::fake()->image('avatar2.jpg');
 
     $user->updateProfilePhoto($firstFile);
@@ -42,7 +42,7 @@ test('can delete profile photo', function () {
 
     $user->updateProfilePhoto($file);
     $photoPath = $user->profile_photo_path;
-    
+
     $user->deleteProfilePhoto();
 
     expect($user->fresh()->profile_photo_path)->toBeNull();
@@ -71,7 +71,7 @@ test('can get profile photo URL when photo exists', function () {
 
 test('can get default profile photo URL when no photo exists', function () {
     $user = User::factory()->create([
-        'name' => 'John Doe',
+        'name'               => 'John Doe',
         'profile_photo_path' => null,
     ]);
 
@@ -84,7 +84,7 @@ test('can get default profile photo URL when no photo exists', function () {
 
 test('default profile photo URL handles single name', function () {
     $user = User::factory()->create([
-        'name' => 'John',
+        'name'               => 'John',
         'profile_photo_path' => null,
     ]);
 
@@ -95,7 +95,7 @@ test('default profile photo URL handles single name', function () {
 
 test('default profile photo URL handles multiple names', function () {
     $user = User::factory()->create([
-        'name' => 'John Michael Doe',
+        'name'               => 'John Michael Doe',
         'profile_photo_path' => null,
     ]);
 

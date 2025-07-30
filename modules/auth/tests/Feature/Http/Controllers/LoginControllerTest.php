@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Models\User;
-use Modules\Auth\Events\UserLoggedIn;
 use Illuminate\Support\Facades\Event;
+use Modules\Auth\Events\UserLoggedIn;
+use Modules\Auth\Models\User;
 
 uses(RefreshDatabase::class);
 
@@ -18,11 +18,11 @@ test('login page can be rendered', function () {
 
 test('users can authenticate using the login form', function () {
     Event::fake([UserLoggedIn::class]);
-    
+
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'password',
         'remember' => false,
     ]);
@@ -36,11 +36,11 @@ test('users can authenticate using the login form', function () {
 
 test('users can authenticate with remember me option', function () {
     Event::fake([UserLoggedIn::class]);
-    
+
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'password',
         'remember' => true,
     ]);
@@ -54,7 +54,7 @@ test('users cannot authenticate with invalid password', function () {
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'wrong-password',
         'remember' => false,
     ]);
@@ -65,7 +65,7 @@ test('users cannot authenticate with invalid password', function () {
 
 test('users cannot authenticate with non-existent email', function () {
     $response = $this->post(route('login.store'), [
-        'email' => 'nonexistent@example.com',
+        'email'    => 'nonexistent@example.com',
         'password' => 'password',
         'remember' => false,
     ]);
@@ -76,7 +76,7 @@ test('users cannot authenticate with non-existent email', function () {
 
 test('authenticated users can logout', function () {
     $user = User::factory()->create();
-    
+
     $this->actingAs($user);
 
     $response = $this->post(route('logout'));
@@ -96,10 +96,10 @@ test('check user status returns correct data for existing user', function () {
 
     $response->assertOk()
         ->assertJson([
-            'userExists' => true,
+            'userExists'           => true,
             'requiresVerification' => false,
-            'hasPasskeys' => false,
-            'passkeyCount' => 0,
+            'hasPasskeys'          => false,
+            'passkeyCount'         => 0,
         ]);
 });
 
@@ -110,10 +110,10 @@ test('check user status returns correct data for non-existent user', function ()
 
     $response->assertOk()
         ->assertJson([
-            'userExists' => false,
+            'userExists'           => false,
             'requiresVerification' => false,
-            'hasPasskeys' => false,
-            'passkeyCount' => 0,
+            'hasPasskeys'          => false,
+            'passkeyCount'         => 0,
         ]);
 });
 
@@ -128,10 +128,10 @@ test('check user status returns unverified status for unverified user', function
 
     $response->assertOk()
         ->assertJson([
-            'userExists' => true,
+            'userExists'           => true,
             'requiresVerification' => true,
-            'hasPasskeys' => false,
-            'passkeyCount' => 0,
+            'hasPasskeys'          => false,
+            'passkeyCount'         => 0,
         ]);
 });
 
@@ -146,14 +146,14 @@ test('check user status validates email format', function () {
 
 test('users with two factor enabled are redirected to challenge', function () {
     Event::fake();
-    
+
     $user = User::factory()->create([
-        'two_factor_secret' => encrypt('secret'),
+        'two_factor_secret'       => encrypt('secret'),
         'two_factor_confirmed_at' => now(),
     ]);
 
     $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+        'email'    => $user->email,
         'password' => 'password',
         'remember' => false,
     ]);

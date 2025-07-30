@@ -1,21 +1,21 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Auth\Models\User;
 use Modules\Auth\Models\Passkey;
+use Modules\Auth\Models\User;
 
 uses(RefreshDatabase::class);
 
 test('user can have passkeys relationship', function () {
     $user = User::factory()->create();
-    
+
     expect($user->passkeys())->toBeInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class);
 });
 
 test('can check if user has passkeys', function () {
     $userWithoutPasskeys = User::factory()->create();
-    $userWithPasskeys = User::factory()->create();
-    
+    $userWithPasskeys    = User::factory()->create();
+
     Passkey::factory()->create(['user_id' => $userWithPasskeys->id]);
 
     expect($userWithoutPasskeys->hasPasskeys())->toBeFalse();
@@ -50,13 +50,13 @@ test('can get passkey user icon', function () {
 });
 
 test('can find passkey by credential id', function () {
-    $user = User::factory()->create();
+    $user    = User::factory()->create();
     $passkey = Passkey::factory()->create([
-        'user_id' => $user->id,
+        'user_id'       => $user->id,
         'credential_id' => 'test-credential-123',
     ]);
 
-    $found = $user->findPasskeyByCredentialId('test-credential-123');
+    $found    = $user->findPasskeyByCredentialId('test-credential-123');
     $notFound = $user->findPasskeyByCredentialId('non-existent');
 
     expect($found)->toBeInstanceOf(Passkey::class);
@@ -66,12 +66,12 @@ test('can find passkey by credential id', function () {
 
 test('can create passkey for user', function () {
     $user = User::factory()->create();
-    
+
     $passkeyData = [
-        'name' => 'My Security Key',
+        'name'          => 'My Security Key',
         'credential_id' => 'credential-123',
-        'public_key' => 'public-key-data',
-        'sign_count' => 0,
+        'public_key'    => 'public-key-data',
+        'sign_count'    => 0,
     ];
 
     $passkey = $user->createPasskey($passkeyData);
@@ -83,7 +83,7 @@ test('can create passkey for user', function () {
 });
 
 test('can delete passkey by id', function () {
-    $user = User::factory()->create();
+    $user    = User::factory()->create();
     $passkey = Passkey::factory()->create(['user_id' => $user->id]);
 
     $result = $user->deletePasskey($passkey->id);
@@ -102,19 +102,19 @@ test('delete passkey returns false for non-existent passkey', function () {
 
 test('can get passkey credentials for authentication', function () {
     $user = User::factory()->create();
-    
+
     $passkey1 = Passkey::factory()->create([
-        'user_id' => $user->id,
+        'user_id'       => $user->id,
         'credential_id' => 'cred-1',
-        'public_key' => 'pub-key-1',
-        'sign_count' => 5,
+        'public_key'    => 'pub-key-1',
+        'sign_count'    => 5,
     ]);
-    
+
     $passkey2 = Passkey::factory()->create([
-        'user_id' => $user->id,
+        'user_id'       => $user->id,
         'credential_id' => 'cred-2',
-        'public_key' => 'pub-key-2',
-        'sign_count' => 10,
+        'public_key'    => 'pub-key-2',
+        'sign_count'    => 10,
     ]);
 
     $credentials = $user->getPasskeyCredentials();
