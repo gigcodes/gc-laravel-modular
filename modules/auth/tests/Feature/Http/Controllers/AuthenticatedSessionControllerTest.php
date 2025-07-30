@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Modules\Auth\Models\User;
 use Modules\Auth\DTO\LoginData;
-use Modules\Auth\Services\AuthService;
+use Modules\Auth\Http\Controllers\AuthenticatedSessionController;
+use Modules\Auth\Interfaces\AuthServiceInterface;
 
 uses(RefreshDatabase::class);
 
@@ -103,3 +104,4 @@ test('authentication redirects to intended url', function () {
     $response->assertRedirect(route('dashboard'));
     $this->assertAuthenticated();
 });
+

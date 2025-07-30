@@ -98,3 +98,38 @@ test('logs out user when two factor not verified', function () {
     expect(session('auth.two_factor_required'))->toBeTrue();
     expect(session('auth.two_factor_user_id'))->toBe($user->id);
 });
+
+test('allows access when user has no two factor enabled specifically', function () {
+    Route::middleware(['web', 'auth', TwoFactorMiddleware::class])->get('/protected-no-2fa', function () {
+        return response('Protected content');
+    });
+
+    $user = User::factory()->create([
+        'two_factor_secret' => null,
+        'two_factor_confirmed_at' => null,
+    ]);
+
+    $response = $this->actingAs($user)->get('/protected-no-2fa');
+
+    $response->assertOk();
+    $response->assertSee('Protected content');
+});
+
+test('allows access when two factor is already verified in session specifically', function () {
+    Route::middleware(['web', 'auth', TwoFactorMiddleware::class])->get('/protected-verified', function () {
+        return response('Protected content');
+    });
+
+    $user = User::factory()->create([
+        'two_factor_secret' => encrypt('secret'),
+        'two_factor_confirmed_at' => now(),
+    ]);
+    
+    // Set session to indicate two-factor is already verified
+    session(['auth.two_factor_verified' => $user->id]);
+
+    $response = $this->actingAs($user)->get('/protected-verified');
+
+    $response->assertOk();
+    $response->assertSee('Protected content');
+});

@@ -214,3 +214,148 @@ test('handles empty results gracefully', function () {
     expect($users)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
     expect($users)->toHaveCount(0);
 });
+
+test('can find by id with relations and appends', function () {
+    $user = User::factory()->create();
+    
+    $result = $this->repository->findById($user->id, ['*'], [], ['custom_field']);
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+test('can find by id returns null for non-existent', function () {
+    $result = $this->repository->findById(999, ['*'], [], ['custom_field']);
+    
+    expect($result)->toBeNull();
+});
+
+test('can use updateOrCreate method', function () {
+    $attributes = ['email' => 'unique@example.com'];
+    $values = ['name' => 'Updated User', 'password' => bcrypt('password')];
+    
+    $user = $this->repository->updateOrCreate($attributes, $values);
+    
+    expect($user)->toBeInstanceOf(User::class);
+    expect($user->email)->toBe('unique@example.com');
+    expect($user->name)->toBe('Updated User');
+    
+    // Test update case
+    $updatedUser = $this->repository->updateOrCreate($attributes, ['name' => 'Modified User']);
+    expect($updatedUser->id)->toBe($user->id);
+    expect($updatedUser->name)->toBe('Modified User');
+});
+
+test('can force delete records', function () {
+    $user = User::factory()->create();
+    
+    $result = $this->repository->forceDelete($user->id);
+    
+    expect($result)->toBeTrue();
+    $this->assertDatabaseMissing('users', ['id' => $user->id]);
+});
+
+test('can restore soft deleted records if model supports it', function () {
+    $user = User::factory()->create();
+    
+    // Since User model doesn't use SoftDeletes, this should return false
+    $result = $this->repository->restore($user->id);
+    
+    expect($result)->toBeFalse();
+});
+
+test('can find by field', function () {
+    $user = User::factory()->create(['email' => 'test@example.com']);
+    
+    $result = $this->repository->findBy('email', 'test@example.com');
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+test('can find by field with relations', function () {
+    $user = User::factory()->create(['email' => 'test@example.com']);
+    
+    $result = $this->repository->findBy('email', 'test@example.com', ['*'], []); 
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+test('can find by field using findByField method', function () {
+    $user = User::factory()->create(['email' => 'test@example.com']);
+    
+    $result = $this->repository->findByField('email', 'test@example.com');
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+test('can get multiple records by field', function () {
+    User::factory()->count(3)->create(['name' => 'Test User']);
+    
+    $results = $this->repository->getBy('name', 'Test User');
+    
+    expect($results)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
+    expect($results)->toHaveCount(3);
+});
+
+test('can make new model instance', function () {
+    $attributes = ['name' => 'Test User', 'email' => 'test@example.com'];
+    
+    $user = $this->repository->make($attributes);
+    
+    expect($user)->toBeInstanceOf(User::class);
+    expect($user->name)->toBe('Test User');
+    expect($user->email)->toBe('test@example.com');
+    expect($user->exists)->toBeFalse(); // Not saved to database
+});
+
+test('can get model instance', function () {
+    $model = $this->repository->getModel();
+    
+    expect($model)->toBeInstanceOf(User::class);
+});
+
+test('can get records by conditions', function () {
+    $user1 = User::factory()->create(['name' => 'John', 'email' => 'john@example.com']);
+    User::factory()->create(['name' => 'Jane', 'email' => 'jane@example.com']);
+    
+    $results = $this->repository->getByConditions(['name' => 'John']);
+    
+    expect($results)->toHaveCount(1);
+    expect($results->first()->id)->toBe($user1->id);
+});
+
+test('can find record by conditions', function () {
+    $user = User::factory()->create(['name' => 'John', 'email' => 'john@example.com']);
+    
+    $result = $this->repository->findByConditions(['name' => 'John']);
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+test('can find or fail by conditions', function () {
+    $user = User::factory()->create(['name' => 'John']);
+    
+    $result = $this->repository->findOrFailByConditions(['name' => 'John']);
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+test('find or fail by conditions throws exception for non-existent', function () {
+    expect(fn() => $this->repository->findOrFailByConditions(['name' => 'NonExistent']))
+        ->toThrow(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+});
+
+test('can query by conditions', function () {
+    User::factory()->create(['name' => 'John']);
+    
+    $query = $this->repository->queryByConditions(['name' => 'John']);
+    
+    expect($query)->toBeInstanceOf(\Illuminate\Database\Eloquent\Builder::class);
+    $results = $query->get();
+    expect($results)->toHaveCount(1);
+});
