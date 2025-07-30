@@ -76,3 +76,14 @@ test('verified users are redirected from verification page', function () {
 
     $response->assertRedirect(route('dashboard'));
 });
+
+test('verified users cannot send new verification notification', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => now(),
+    ]);
+
+    $response = $this->actingAs($user)->post(route('verification.send'));
+
+    $response->assertRedirect(route('dashboard'));
+    $response->assertSessionHas('success', 'Email already verified.');
+});
