@@ -197,3 +197,20 @@ test('can delete multiple records', function () {
         $this->assertDatabaseMissing('users', ['id' => $user->id]);
     }
 });
+
+test('can use advanced where with operators', function () {
+    User::factory()->create(['name' => 'John', 'created_at' => now()->subDays(5)]);
+    User::factory()->create(['name' => 'Jane', 'created_at' => now()->subDays(2)]);
+    User::factory()->create(['name' => 'Bob', 'created_at' => now()->subDays(10)]);
+    
+    $users = $this->repository->where('created_at', '>', now()->subDays(7));
+    
+    expect($users)->toHaveCount(2);
+});
+
+test('handles empty results gracefully', function () {
+    $users = $this->repository->where('name', 'NonExistentUser');
+    
+    expect($users)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
+    expect($users)->toHaveCount(0);
+});

@@ -175,3 +175,27 @@ test('findOrFail throws exception for non-existent record', function () {
     expect(fn() => $this->service->findOrFail(999999))
         ->toThrow(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
 });
+
+test('can get repository instance', function () {
+    $repository = $this->service->getRepository();
+    
+    expect($repository)->toBeInstanceOf(\Modules\Shared\Repositories\Base\Contracts\QueryableRepositoryInterface::class);
+});
+
+test('can get filtered results', function () {
+    User::factory()->count(3)->create();
+    
+    $results = $this->service->getFiltered();
+    
+    expect($results)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
+    expect($results)->toHaveCount(3);
+});
+
+test('can get filtered results with specific columns', function () {
+    User::factory()->count(2)->create();
+    
+    $results = $this->service->getFiltered(['id', 'name']);
+    
+    expect($results)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
+    expect($results)->toHaveCount(2);
+});

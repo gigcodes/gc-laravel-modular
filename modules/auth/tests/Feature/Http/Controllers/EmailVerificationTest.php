@@ -87,3 +87,19 @@ test('verified users cannot send new verification notification', function () {
     $response->assertRedirect(route('dashboard'));
     $response->assertSessionHas('success', 'Email already verified.');
 });
+
+test('already verified users get redirected directly', function () {
+    $user = User::factory()->create([
+        'email_verified_at' => now(),
+    ]);
+
+    $verificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(60),
+        ['id' => $user->id, 'hash' => sha1($user->email)]
+    );
+
+    $response = $this->actingAs($user)->get($verificationUrl);
+
+    $response->assertRedirect(route('dashboard').'?verified=1');
+});

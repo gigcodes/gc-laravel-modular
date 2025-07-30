@@ -112,3 +112,64 @@ test('cannot delete another users passkey', function () {
 
     $response->assertNotFound();
 });
+
+test('registration options redirects unauthenticated user', function () {
+    $response = $this->post(route('passkeys.registration.options'));
+
+    $response->assertRedirect(route('login'));
+});
+
+test('registration options handles service exceptions', function () {
+    $user = User::factory()->create();
+    
+    // Mock the service to throw an exception
+    $this->mock(\Modules\Auth\Services\PasskeyService::class, function ($mock) {
+        $mock->shouldReceive('generateRegistrationOptions')
+             ->andThrow(new \Exception('Service error'));
+    });
+
+    $response = $this->actingAs($user)->post(route('passkeys.registration.options'));
+
+    $response->assertStatus(500);
+    $response->assertJson([
+        'success' => false,
+        'message' => 'Failed to generate registration options: Service error',
+    ]);
+});
+
+test('store passkey handles service exceptions', function () {
+    $user = User::factory()->create();
+    
+    // Mock the service to throw an exception
+    $this->mock(\Modules\Auth\Services\PasskeyService::class, function ($mock) {
+        $mock->shouldReceive('storePasskey')
+             ->andThrow(new \Exception('Storage error'));
+    });
+
+    $response = $this->actingAs($user)->post(route('passkeys.store'), [
+        'name' => 'Test Key',
+        'credential' => [
+            'id' => 'test-id',
+            'publicKey' => base64_encode('test-key'),
+            'signCount' => 0,
+        ],
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJson([
+        'success' => false,
+        'message' => 'Failed to register passkey: Storage error',
+    ]);
+});
+
+test('store passkey redirects unauthenticated user', function () {
+    $response = $this->post(route('passkeys.store'), [
+        'name' => 'Test Key',
+        'credential' => [
+            'id' => 'test-id',
+            'publicKey' => base64_encode('test-key'),
+        ],
+    ]);
+
+    $response->assertRedirect(route('login'));
+});

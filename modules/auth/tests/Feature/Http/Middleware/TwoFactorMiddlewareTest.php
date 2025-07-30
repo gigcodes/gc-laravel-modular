@@ -53,3 +53,48 @@ test('allows guest users through', function () {
 
     $response->assertStatus(200);
 });
+
+test('redirects to two factor challenge for json requests', function () {
+    Route::middleware(['web', 'auth', TwoFactorMiddleware::class])->get('/api/protected', function () {
+        return response()->json(['data' => 'Protected content']);
+    });
+
+    $user = User::factory()->create([
+        'two_factor_secret' => encrypt('secret'),
+        'two_factor_confirmed_at' => now(),
+    ]);
+
+    $response = $this->actingAs($user)
+        ->getJson('/api/protected');
+
+    $response->assertStatus(423)
+        ->assertJson([
+            'message' => 'Two-factor authentication required.',
+            'two_factor_required' => true,
+        ]);
+    
+    expect(session('auth.two_factor_required'))->toBeTrue();
+    expect(session('auth.two_factor_user_id'))->toBe($user->id);
+    $this->assertGuest(); // User should be logged out
+});
+
+test('logs out user when two factor not verified', function () {
+    Route::middleware(['web', 'auth', TwoFactorMiddleware::class])->get('/protected-page', function () {
+        return 'Protected content';
+    });
+
+    $user = User::factory()->create([
+        'two_factor_secret' => encrypt('secret'),
+        'two_factor_confirmed_at' => now(),
+    ]);
+
+    $this->actingAs($user);
+    $this->assertAuthenticated();
+
+    $response = $this->get('/protected-page');
+
+    $response->assertRedirect(route('two-factor.challenge'));
+    $this->assertGuest(); // User should be logged out
+    expect(session('auth.two_factor_required'))->toBeTrue();
+    expect(session('auth.two_factor_user_id'))->toBe($user->id);
+});

@@ -143,3 +143,22 @@ test('check user status validates email format', function () {
     $response->assertStatus(422)
         ->assertJsonValidationErrors(['email']);
 });
+
+test('users with two factor enabled are redirected to challenge', function () {
+    Event::fake();
+    
+    $user = User::factory()->create([
+        'two_factor_secret' => encrypt('secret'),
+        'two_factor_confirmed_at' => now(),
+    ]);
+
+    $response = $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'password',
+        'remember' => false,
+    ]);
+
+    // Should redirect to two-factor challenge instead of dashboard
+    $response->assertRedirect(route('two-factor.challenge'));
+    $this->assertGuest(); // User should not be authenticated yet
+});

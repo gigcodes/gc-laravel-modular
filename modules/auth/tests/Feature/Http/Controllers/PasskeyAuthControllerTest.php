@@ -87,3 +87,60 @@ test('returns false for non-existent user', function () {
 
     $response->assertStatus(404);
 });
+
+test('can get authentication options with email provided', function () {
+    $user = User::factory()->create();
+    Passkey::factory()->create(['user_id' => $user->id]);
+
+    $response = $this->postJson(route('passkey.auth.options'), [
+        'email' => $user->email,
+    ]);
+
+    $response->assertOk();
+    $response->assertJsonStructure([
+        'challenge',
+        'timeout',
+        'userVerification',
+        'allowCredentials',
+    ]);
+});
+
+test('passkey authentication fails with invalid credentials', function () {
+    $response = $this->postJson(route('passkey.auth.verify'), [
+        'credential' => [
+            'id' => 'invalid-id',
+            'response' => 'invalid-response',
+        ],
+    ]);
+
+    $response->assertStatus(401);
+    $response->assertJson([
+        'success' => false,
+        'message' => 'Invalid passkey or user not found.',
+    ]);
+});
+
+test('passkey authentication handles validation errors', function () {
+    // This will trigger a validation error
+    $response = $this->postJson(route('passkey.auth.verify'), [
+        'credential' => 'invalid-data-type', // Should be array
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['credential']);
+});
+
+test('passkey authentication returns redirect for non-json requests', function () {
+    $user = User::factory()->create();
+    $passkey = Passkey::factory()->create(['user_id' => $user->id]);
+
+    $response = $this->post(route('passkey.auth.verify'), [
+        'credential' => [
+            'id' => $passkey->credential_id,
+            'signCount' => 1,
+        ],
+    ]);
+
+    $response->assertRedirect(route('dashboard'));
+    $this->assertAuthenticated();
+});
