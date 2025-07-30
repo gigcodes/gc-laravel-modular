@@ -92,6 +92,15 @@ trait TwoFactorAuthenticatable
      */
     protected function generateRecoveryCode(): string
     {
-        return strtoupper(substr(str_replace(['+', '/', '='], '', base64_encode(random_bytes(6))), 0, 8));
+        // Generate more random bytes to ensure we have enough characters after filtering
+        $code = '';
+        while (strlen($code) < 8) {
+            $randomBytes = random_bytes(12);
+            $base64      = base64_encode($randomBytes);
+            $filtered    = str_replace(['+', '/', '='], '', $base64);
+            $code .= $filtered;
+        }
+
+        return strtoupper(substr($code, 0, 8));
     }
 }

@@ -205,35 +205,6 @@ test('complete two factor login returns null for invalid user', function () {
     expect($result)->toBeNull();
 });
 
-test('complete two factor login with valid code logs in user', function () {
-    $user = User::factory()->create([
-        'two_factor_secret' => encrypt('TESTSECRETKEY'),
-        'two_factor_confirmed_at' => now(),
-    ]);
-    
-    session([
-        'auth.two_factor_user_id' => $user->id,
-        'auth.remember' => true,
-    ]);
-    
-    // Mock the Google2FA service to return true for verification
-    $this->mock(\Modules\Auth\Services\Google2FAService::class, function ($mock) use ($user) {
-        $mock->shouldReceive('verifyTwoFactor')
-             ->with($user, '123456')
-             ->once()
-             ->andReturn(true);
-    });
-    
-    $result = $this->authService->completeTwoFactorLogin('123456');
-    
-    expect($result)->toBeInstanceOf(User::class);
-    expect($result->id)->toBe($user->id);
-    expect(session('auth.two_factor_verified'))->toBe($user->id);
-    expect(session()->has('auth.two_factor_required'))->toBeFalse();
-    expect(session()->has('auth.two_factor_user_id'))->toBeFalse();
-    expect(session()->has('auth.remember'))->toBeFalse();
-    $this->assertAuthenticated();
-});
 
 test('complete two factor login returns null for invalid code', function () {
     $google2fa = app(\PragmaRX\Google2FA\Google2FA::class);
@@ -250,4 +221,33 @@ test('complete two factor login returns null for invalid code', function () {
     $result = $this->authService->completeTwoFactorLogin('000000');
     
     expect($result)->toBeNull();
+});
+
+test('complete two factor login with valid code logs in user', function () {
+    $google2fa = app(\PragmaRX\Google2FA\Google2FA::class);
+    $secret = $google2fa->generateSecretKey();
+    
+    $user = User::factory()->create([
+        'two_factor_secret' => encrypt($secret),
+        'two_factor_confirmed_at' => now(),
+    ]);
+    
+    session([
+        'auth.two_factor_required' => true,
+        'auth.two_factor_user_id' => $user->id,
+        'auth.remember' => false,
+    ]);
+    
+    // Generate a valid OTP using the same secret
+    $validCode = $google2fa->getCurrentOtp($secret);
+    
+    $result = $this->authService->completeTwoFactorLogin($validCode);
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+    expect(Auth::check())->toBeTrue();
+    expect(Auth::id())->toBe($user->id);
+    expect(session('auth.two_factor_verified'))->toBe($user->id);
+    expect(session('auth.two_factor_required'))->toBeNull();
+    expect(session('auth.two_factor_user_id'))->toBeNull();
 });

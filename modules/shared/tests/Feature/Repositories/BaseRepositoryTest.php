@@ -359,3 +359,45 @@ test('can query by conditions', function () {
     $results = $query->get();
     expect($results)->toHaveCount(1);
 });
+
+test('repository can be instantiated with builder instance', function () {
+    // Create a concrete repository class that can be instantiated for testing
+    $concreteRepo = new class(User::query()) extends \Modules\Shared\Repositories\Base\Concretes\BaseRepository {
+        public function getModelClass(): string
+        {
+            return User::class;
+        }
+    };
+    
+    $user = User::factory()->create();
+    $result = $concreteRepo->find($user->id);
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+test('repository can be instantiated with string class name', function () {
+    // Create a concrete repository class that can be instantiated for testing
+    $concreteRepo = new class(User::class) extends \Modules\Shared\Repositories\Base\Concretes\BaseRepository {
+        public function getModelClass(): string
+        {
+            return User::class;
+        }
+    };
+    
+    $user = User::factory()->create();
+    $result = $concreteRepo->find($user->id);
+    
+    expect($result)->toBeInstanceOf(User::class);
+    expect($result->id)->toBe($user->id);
+});
+
+
+test('restore method returns false for models without soft deletes', function () {
+    $user = User::factory()->create();
+    
+    // User model doesn't use SoftDeletes by default
+    $result = $this->repository->restore($user->id);
+    
+    expect($result)->toBeFalse();
+});

@@ -128,3 +128,88 @@ test('middleware handles routes without prefixes', function () {
         ->has('translations')
     );
 });
+
+test('middleware loads language files when they exist', function () {
+    // Clear cache first
+    cache()->forget('translations.en');
+    
+    // Create temporary language files
+    $langPath = base_path('lang/en');
+    File::ensureDirectoryExists($langPath);
+    
+    $validationContent = "<?php\nreturn ['required' => 'This field is required'];";
+    file_put_contents("{$langPath}/validation.php", $validationContent);
+    
+    app()->setLocale('en');
+    
+    Route::middleware(['web', HandleInertiaRequests::class])
+        ->get('/test-route', function () {
+            return inertia('TestPage');
+        });
+
+    $response = $this->get('/test-route');
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('translations')
+    );
+    
+    // Clean up
+    File::deleteDirectory(base_path('lang'));
+});
+
+test('middleware loads module language files for active module', function () {
+    // Clear cache first
+    cache()->forget('translations.en');
+    
+    // Create temporary module language files
+    $moduleLangPath = base_path('modules/auth/resources/lang/en');
+    File::ensureDirectoryExists($moduleLangPath);
+    
+    $moduleContent = "<?php\nreturn ['title' => 'Authentication Module'];";
+    file_put_contents("{$moduleLangPath}/general.php", $moduleContent);
+    
+    app()->setLocale('en');
+    
+    Route::middleware(['web', HandleInertiaRequests::class])
+        ->name('auth::test')
+        ->get('/test-route', function () {
+            return inertia('TestPage');
+        });
+
+    $response = $this->get('/test-route');
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('translations')
+    );
+    
+    // Clean up
+    File::deleteDirectory(base_path('modules/auth/resources/lang'));
+});
+
+test('middleware handles non-array language file content', function () {
+    // Create language files with non-array content  
+    $langPath = base_path('lang/en');
+    File::ensureDirectoryExists($langPath);
+    
+    $invalidContent = "<?php\nreturn 'invalid content';";
+    file_put_contents("{$langPath}/validation.php", $invalidContent);
+    
+    app()->setLocale('en');
+    
+    Route::middleware(['web', HandleInertiaRequests::class])
+        ->get('/test-route', function () {
+            return inertia('TestPage');
+        });
+
+    $response = $this->get('/test-route');
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('translations')
+    );
+    
+    // Clean up
+    File::deleteDirectory(base_path('lang'));
+});
