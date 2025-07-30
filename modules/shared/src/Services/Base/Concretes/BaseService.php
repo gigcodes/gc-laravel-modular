@@ -135,4 +135,50 @@ abstract class BaseService implements BaseServiceInterface
     {
         return $this->repository->delete($id);
     }
+
+    /**
+     * Query resources by where condition
+     *
+     * @return \Illuminate\Database\Eloquent\Builder<TModel>
+     */
+    public function query()
+    {
+        return $this->repository->query();
+    }
+
+    /**
+     * Get resources by where condition
+     *
+     * @return Collection<int, TModel>
+     */
+    public function where(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and'): Collection
+    {
+        return $this->repository->where($column, $operator, $value, $boolean);
+    }
+
+    /**
+     * Get first resource by where condition
+     *
+     * @return TModel|null
+     */
+    public function firstWhere(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and'): ?Model
+    {
+        return $this->repository->firstWhere($column, $operator, $value, $boolean);
+    }
+
+    /**
+     * Check if resource exists
+     */
+    public function exists(string|int $id): bool
+    {
+        return $this->repository->exists($id);
+    }
+
+    /**
+     * Count resources
+     */
+    public function count(): int
+    {
+        return $this->repository->count();
+    }
 }

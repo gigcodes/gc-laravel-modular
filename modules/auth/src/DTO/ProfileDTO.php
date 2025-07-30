@@ -3,6 +3,7 @@
 namespace Modules\Auth\DTO;
 
 use Illuminate\Validation\Rule;
+use Modules\Auth\Models\User;
 use Spatie\LaravelData\Data;
 
 class ProfileDTO extends Data

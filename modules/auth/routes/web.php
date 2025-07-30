@@ -18,13 +18,13 @@ use Modules\Auth\Http\Controllers\VerifyEmailController;
 
 Route::middleware(['web', 'guest'])->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
-    Route::post('register', [RegisterController::class, 'store']);
+    Route::post('register', [RegisterController::class, 'store'])->name('register.store');
 
     Route::get('login', [LoginController::class, 'create'])->name('login');
-    Route::post('login', [LoginController::class, 'store']);
+    Route::post('login', [LoginController::class, 'store'])->name('login.store');
 
     // User Status Check (email verification + passkeys)
-    Route::post('check-user-status', [LoginController::class, 'checkUserStatus'])->name('check-user-status');
+    Route::post('check-user-status', [LoginController::class, 'checkUserStatus'])->name('login.check-status');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

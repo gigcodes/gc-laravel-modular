@@ -240,4 +240,34 @@ abstract class BaseRepository implements BaseRepositoryInterface
         /** @var Builder<TModel> */
         return (clone $this->model)->where($conditions);
     }
+
+    /**
+     * Get resources by where condition
+     *
+     * @return Collection<int, TModel>
+     */
+    public function where(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and'): Collection
+    {
+        return (clone $this->model)->where($column, $operator, $value, $boolean)->get();
+    }
+
+    /**
+     * Get first resource by where condition
+     *
+     * @return TModel|null
+     */
+    public function firstWhere(string $column, mixed $operator = null, mixed $value = null, string $boolean = 'and'): ?Model
+    {
+        return (clone $this->model)->where($column, $operator, $value, $boolean)->first();
+    }
+
+    public function count(): int
+    {
+        return (clone $this->model)->count();
+    }
+
+    public function exists(string|int $id): bool
+    {
+        return (clone $this->model)->where('id', $id)->exists();
+    }
 }

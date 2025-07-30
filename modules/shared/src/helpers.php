@@ -19,3 +19,16 @@ if (! function_exists('module_path')) {
         return $basePath . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR);
     }
 }
+
+if (! function_exists('module_asset')) {
+    /**
+     * Generate an asset path for a module.
+     *
+     * @param string      $module The module name
+     * @param string      $path   Asset path within the module
+     */
+    function module_asset(string $module, string $path): string
+    {
+        return asset("modules/{$module}/{$path}");
+    }
+}

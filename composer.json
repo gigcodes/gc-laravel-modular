@@ -13,9 +13,11 @@
         "internachi/modular": "^2.3",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "modules/shared": "*",
         "modules/auth": "*",
+        "modules/shared": "*",
         "spatie/laravel-data": "^4.17",
+        "spatie/laravel-permission": "^6.21",
+        "spatie/laravel-query-builder": "^6.3",
         "spatie/laravel-typescript-transformer": "^2.5",
         "tightenco/ziggy": "^2.4"
     },

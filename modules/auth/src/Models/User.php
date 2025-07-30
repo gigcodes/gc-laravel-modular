@@ -8,11 +8,23 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Modules\Auth\Interfaces\PasskeyUser;
 use Modules\Auth\Traits\HasPasskeys;
+use Modules\Auth\Traits\HasProfilePhoto;
 use Modules\Auth\Traits\TwoFactorAuthenticatable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements PasskeyUser
 {
-    use HasFactory, HasPasskeys, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, HasPasskeys, HasProfilePhoto, HasRoles, Notifiable, TwoFactorAuthenticatable;
+
+    protected $guard_name = 'web';
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory()
+    {
+        return \Modules\Auth\Database\Factories\UserFactory::new();
+    }
 
     protected $fillable = [
         'name',
@@ -23,6 +35,8 @@ class User extends Authenticatable implements PasskeyUser
         'two_factor_secret',
         'two_factor_confirmed_at',
         'two_factor_recovery_codes',
+        'profile_photo_path',
+        'last_login_at',
     ];
 
     protected $hidden = [
@@ -43,6 +57,7 @@ class User extends Authenticatable implements PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'last_login_at' => 'datetime',
         ];
     }
     
@@ -51,7 +66,7 @@ class User extends Authenticatable implements PasskeyUser
      *
      * @var array
      */
-    protected $appends = ['two_factor_enabled'];
+    protected $appends = ['two_factor_enabled', 'profile_photo_url'];
     
     /**
      * Determine if two-factor authentication is enabled.
@@ -61,5 +76,13 @@ class User extends Authenticatable implements PasskeyUser
     public function getTwoFactorEnabledAttribute(): bool
     {
         return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
+    }
+
+    /**
+     * Get the profile photo URL attribute.
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        return $this->profilePhotoUrl();
     }
 }
