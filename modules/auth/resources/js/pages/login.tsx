@@ -56,7 +56,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         setEmailError(null);
         
         try {
-            const response = await axios.post(route('check-user-status'), { email: data.email });
+            const response = await axios.post(route('login.check-status'), { email: data.email });
             const { userExists, hasPasskeys } = response.data;
             
             if (!userExists) {
